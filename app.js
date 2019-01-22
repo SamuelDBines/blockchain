@@ -292,7 +292,9 @@ app.get('/logout', (req, res) => {
   req.session.user = undefined;
   res.redirect('/login');
 })
-
+app.post('/testroute', (req, res) => {
+  return res.json('success')
+})
 app.get('/getChain', async (req, res) => {
   res.json(blockchain.getChain());
 })
