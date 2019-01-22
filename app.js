@@ -292,8 +292,18 @@ app.get('/logout', (req, res) => {
   req.session.user = undefined;
   res.redirect('/login');
 })
-app.post('/testroute', (req, res) => {
-  return res.json('success')
+app.get('/api/dispatch', (req, res) => {
+  let map = Object.values(CUSTOMER_CHAIN);
+  let dups = {};
+  map.forEach(element => {
+    dups[element.timestamp] ? dups[element.timestamp].push(element.type) : dups[element.timestamp] = [element.type];
+  })
+  Object.keys(dups).forEach(element => {
+    if (dups[element].includes("RETURN") || dups[element].includes("DELIVERED") || dups[element].includes("ONROUTE")) {
+      delete dups[element];
+    }
+  })
+  return res.json(map.filter(x => Object.keys(dups).includes(x.timestamp)))
 })
 app.get('/getChain', async (req, res) => {
   res.json(blockchain.getChain());
