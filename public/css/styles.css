@@ -1,0 +1,96 @@
+.card {
+  margin: auto;
+  width: 60%;
+  padding: 1rem;
+}
+
+body {
+  font-family: monospace;
+  margin: 0;
+}
+
+input {
+  display: block;
+  width: 100%;
+  margin-bottom: 1rem;
+  padding: 0.5rem 1rem;
+  font-size: 16px;
+  border: none;
+  border-bottom: 2px solid black;
+
+}
+
+select {
+  display: block;
+  width: 100%;
+  margin-bottom: 1rem;
+  padding: 0.5rem 1rem;
+  font-size: 16px;
+  border: none;
+  border-bottom: 2px solid black;
+}
+
+.input_label {
+  margin-left: 1rem;
+  font-size: 16px;
+  position: relative;
+  text-transform: uppercase;
+}
+
+.searchField {
+  display: inline-block;
+  width: calc(80% - 1rem);
+  margin-left: 1rem;
+}
+
+.searchButton {
+  width: calc(20% - 1rem);
+}
+
+.table {
+  margin: auto;
+  width: 100%;
+  font-size: 22px;
+}
+
+.tableHead {
+  text-transform: uppercase;
+}
+
+.tableRow {
+  text-align: center;
+}
+
+.tableItem {
+  border-top: 2px solid black;
+  border-bottom: 2px solid black;
+}
+
+.input_field {}
+
+button {
+  font-size: 20px;
+  border: none;
+  padding: 1rem;
+  text-transform: uppercase;
+}
+
+button:hover {
+  background-color: black;
+  color: white;
+}
+
+.navbar-item {
+  padding: 0.5rem;
+  margin: 0rem 1rem;
+  display: inline-block;
+  font-size: 26px;
+  text-transform: uppercase;
+  text-align: center;
+}
+
+.navbar {
+  background-color: aliceblue;
+  width: 100%;
+  margin-bottom: 1rem;
+}

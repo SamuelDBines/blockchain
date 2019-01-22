@@ -1,0 +1,95 @@
+{
+  "loggedOut": [{
+      "text": "Register",
+      "link": "/register"
+    },
+    {
+      "text": "Login",
+      "link": "/login"
+    }
+  ],
+  "customer": [{
+      "text": "Home",
+      "link": "/home"
+    },
+    {
+      "text": "Recent Activity",
+      "link": "/recent"
+    },
+    {
+      "text": "Order History",
+      "link": "/view"
+    },
+    {
+      "text": "Logout",
+      "link": "/logout"
+    }
+  ],
+  "admin": [{
+      "text": "Home",
+      "link": "/home"
+    },
+    {
+      "text": "Recent Activity",
+      "link": "/recent"
+    },
+    {
+      "text": "Register User",
+      "link": "/admin/register"
+    },
+    {
+      "text": "History",
+      "link": "/view"
+    },
+    {
+      "text": "Logout",
+      "link": "/logout"
+    }
+  ],
+  "supplier": [{
+      "text": "Home",
+      "link": "/home"
+    },
+    {
+      "text": "Recent Activity",
+      "link": "/recent"
+    },
+    {
+      "text": "Items",
+      "link": "/supplier/items"
+    },
+    {
+      "text": "Current Orders",
+      "link": "/orders"
+    },
+    {
+      "text": "History",
+      "link": "/view"
+    },
+    {
+      "text": "Logout",
+      "link": "/logout"
+    }
+  ],
+  "driver": [{
+      "text": "Home",
+      "link": "/home"
+    },
+    {
+      "text": "Recent Activity",
+      "link": "/recent"
+    },
+    {
+      "text": "Deliverys",
+      "link": "/delivery"
+    },
+    {
+      "text": "History",
+      "link": "/view"
+    },
+    {
+      "text": "Logout",
+      "link": "/logout"
+    }
+  ]
+}

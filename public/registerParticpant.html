@@ -1,0 +1,45 @@
+<html>
+  <head>
+    <link rel="stylesheet" type="text/css" href="css/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+        <script src="js/apiService.js" > </script> 
+  </head>
+  <body>
+    <div class="navbar" id="navbar">
+        <nav-item
+          v-for="item in navbarList"
+          v-bind:nav="item"
+          v-bind:key="item.text"
+        ></nav-item>
+    </div>
+    <form class="card" METHOD="POST" ACTION="/register">
+      <div class="input_field">
+        <label  class="input_label"> Full Name</label>
+        <input type="text" name="name" required>
+      <div>
+      <div class="input_field">
+        <label  class="input_label">  Email</label>
+        <input type="text" name="email" required>
+      <div>
+      <div class="input_field">
+        <label class="input_label"> Password</label>
+        <input type="password" minlength="8" maxlength="16" name="password" required>
+      <div>
+      <div class="input_field">
+        <label class="input_label"> Confirm Password</label>
+        <input type="password" minlength="8" maxlength="16" name="confirmPassword" required>
+      <div>
+      <div class="input_field">
+        <label class="input_label"> Type</label>
+        <select name="access" required>
+          <option value="DRIVER">Driver </option>
+          <option value="SUPPLIER">Supplier </option>
+          <option value="ADMIN">Admin </option>
+        </select>
+        
+      <div>
+      <button > register</button>
+    </form>
+    <script src="js/navbar.js" > </script> 
+  </body>
+</html>

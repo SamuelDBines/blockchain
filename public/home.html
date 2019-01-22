@@ -1,0 +1,46 @@
+<html>
+  <head>
+    <link rel="stylesheet" type="text/css" href="css/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+    <script src="js/apiService.js" > </script> 
+  </head>
+  <body>
+  
+    <div class="navbar" id="navbar">
+        <nav-item
+          v-for="item in navbarList"
+          v-bind:nav="item"
+          v-bind:key="item.text"
+        ></nav-item>
+    </div>
+   
+    <div id="items">
+      <div>
+        <input v-model="search" class="searchField" type="text" name="search" placeholder="search" @keyup.enter="searchItems(search)" required>
+        <button class="searchButton" @click="searchItems(search)" > Search</button>
+      </div>
+      <table class="table">
+        <thead class="tableHead">
+          <th>
+            Item Code
+          </th>
+          <th>
+            Item Name
+          </th>
+          <th>
+            Item 
+          </th>
+        </thead>
+        <tbody>
+          <tr class="tableRow" is="table-item" 
+            v-for="item in itemList"
+            v-bind:data="item"
+          > </tr>
+        </tbody>
+      </table>
+    </div>
+  <script src="js/navbar.js" > </script> 
+    <script src="js/home.js" > </script> 
+  </body>
+</html>

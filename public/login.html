@@ -1,0 +1,32 @@
+<html>
+  <head>
+    <link rel="stylesheet" type="text/css" href="css/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+    
+  </head>
+  <body>
+    <div class="navbar" id="navbar">
+        <nav-item
+          v-for="item in navbarList"
+          v-bind:nav="item"
+          v-bind:key="item.text"
+        ></nav-item>
+    </div>
+    <form class="card" METHOD="POST" ACTION="/login">
+
+      <div class="input_field">
+        <label  class="input_label"> Email </label>
+        <input type="email" name="email" required>
+      <div>
+      <div class="input_field">
+        <label  class="input_label"> Password </label>
+        <input type="password" name="password" required>
+      <div>
+     
+      <button > register</button>
+    </form>
+  
+  <script src="js/navbar.js" > </script> 
+  </body>
+</html>

@@ -1,0 +1,61 @@
+<html>
+  <head>
+    <link rel="stylesheet" type="text/css" href="css/styles.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+    <script src="js/apiService.js" > </script> 
+    
+  </head>
+  <body>
+    <div class="navbar" id="navbar">
+        <nav-item
+          v-for="item in navbarList"
+          v-bind:nav="item"
+          v-bind:key="item.text"
+        ></nav-item>
+
+
+    </div>
+    <div id="viewChain">
+       <div>
+        <input v-model="search" class="searchField" type="text" name="search" placeholder="search" @keyup.enter="searchItems(search)" required>
+        <button class="searchButton" @click="searchItems(search)" > Search</button>
+      </div>
+      <table class="table" v-if="viewChain.length > 0">
+        <thead class="tableHead">
+          <th>
+           Order Code
+          </th>
+          <th>
+            ORDER
+          </th>
+          <th>
+            Item Code
+          </th>
+          <th>
+            Item Name
+          </th>
+          <th>
+            Orderer 
+          </th>
+        </thead>
+        <tbody >
+          <tr class="tableRow" is="table-item" 
+            v-for="item in itemList"
+            v-bind:data="item"
+          > </tr>
+        </tbody> 
+        <tbody >
+        
+        </tbody>
+      </table>
+      <div v-else> No recent activity</div>
+    </div>
+   
+  
+   <script src="js/navbar.js" > </script> 
+    <script src="js/viewRecent.js" > </script> 
+  </body>
+</html>

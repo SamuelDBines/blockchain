@@ -1,0 +1,44 @@
+
+<html>
+  <head>
+    <link rel="stylesheet" type="text/css" href="css/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+    <script src="js/apiService.js" > </script> 
+  </head>
+  <body>
+  
+    <div class="navbar" id="navbar">
+        <nav-item
+          v-for="item in navbarList"
+          v-bind:nav="item"
+          v-bind:key="item.text"
+        ></nav-item>
+    </div>
+    <form class="card" METHOD="POST" ACTION="/supplier/add">
+      <div class="input_field">
+        <label  class="input_label"> Code </label>
+        <input type="text" name="code" required>
+      <div>
+      <div class="input_field">
+        <label  class="input_label"> Item Name  </label>
+        <input type="text" name="name" required>
+      <div>
+      <div class="input_field">
+        <label  class="input_label"> Item </label>
+        <input type="text" name="item" required>
+      <div>
+      <button > Add</button>
+    </form>
+    <form class="card" METHOD="POST" ACTION="/supplier/remove">
+      <div class="input_field">
+        <label  class="input_label"> Code </label>
+        <input type="text" name="code" required>
+      <div>
+     
+      <button > Delete </button>
+    </form>
+
+  <script src="js/navbar.js" > </script> 
+  </body>
+</html>
