@@ -58,8 +58,8 @@ const viewChain = new Vue({
       return dups
 
     },
-    sendItem: async function (code) {
-      const response = await apiService.post('/api/sendItem', code);
+    dispatch: async function (code) {
+      const response = await apiService.post('/api/dispatch', code);
       alert(response.response)
       location.reload();
 

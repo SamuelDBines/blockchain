@@ -31,8 +31,9 @@ const types = {
   UPDATE: 'UPDATE',
   RETURN: 'RETURN',
   DELIVERED: 'DELIVERED',
-  ONROUTE: 'ONROUTE',
-  DAMAGED: 'DAMAGED'
+  DISPATCH: 'DISPATCH',
+  DAMAGED: 'DAMAGED',
+  ATTACHED: 'ATTACHED'
 }
 const accessLevel = {
   CUSTOMER: 'CUSTOMER',
@@ -219,6 +220,32 @@ app.get('/api/links', async (req, res) => {
   }
   res.json(itemList.loggedOut)
 })
+app.get('/api/dispatch', (req, res) => {
+  let map = Object.values(CUSTOMER_CHAIN);
+  let dups = {};
+  map.forEach(element => {
+    dups[element.timestamp] ? dups[element.timestamp].push(element.type) : dups[element.timestamp] = [element.type];
+  })
+  Object.keys(dups).forEach(element => {
+    if (dups[element].includes("RETURN") || dups[element].includes("DELIVERED") || dups[element].includes("ORDER") || dups[element].includes("DISPATCH")) {
+      delete dups[element];
+    }
+  })
+  return res.json(map.filter(x => Object.keys(dups).includes(x.timestamp)))
+})
+app.get('/api/attach', (req, res) => {
+  let map = Object.values(CUSTOMER_CHAIN);
+  let dups = {};
+  map.forEach(element => {
+    dups[element.timestamp] ? dups[element.timestamp].push(element.type) : dups[element.timestamp] = [element.type];
+  })
+  Object.keys(dups).forEach(element => {
+    if (dups[element].includes("RETURN") || dups[element].includes("DELIVERED") || dups[element].includes("ATTACHED") || dups[element].includes("DISPATCH")) {
+      delete dups[element];
+    }
+  })
+  return res.json(map.filter(x => Object.keys(dups).includes(x.timestamp)))
+})
 app.post('/register', async (req, res) => {
   const userData = {
     name: req.body.name,
@@ -281,32 +308,23 @@ app.post('/supplier/remove', ensureSupplier, (req, res, next) => {
     return next(err)
   }
 })
-
-app.get('/admin/register', ensureAdmin, (req, res) => {
-  return res.redirect('/registerParticpant.html')
-})
 app.get('/supplier/items', ensureSupplier, (req, res) => {
   return res.redirect('/addItem.html')
 })
+app.get('/admin/register', ensureAdmin, (req, res) => {
+  return res.redirect('/registerParticpant.html')
+})
+
 app.get('/logout', (req, res) => {
   req.session.user = undefined;
   res.redirect('/login');
 })
-app.get('/api/dispatch', (req, res) => {
-  let map = Object.values(CUSTOMER_CHAIN);
-  let dups = {};
-  map.forEach(element => {
-    dups[element.timestamp] ? dups[element.timestamp].push(element.type) : dups[element.timestamp] = [element.type];
-  })
-  Object.keys(dups).forEach(element => {
-    if (dups[element].includes("RETURN") || dups[element].includes("DELIVERED") || dups[element].includes("ONROUTE")) {
-      delete dups[element];
-    }
-  })
-  return res.json(map.filter(x => Object.keys(dups).includes(x.timestamp)))
-})
+
 app.get('/getChain', async (req, res) => {
   res.json(blockchain.getChain());
+})
+app.get('/', async (req, res) => {
+  res.redirect('/home')
 })
 app.get('/home', async (req, res) => {
   if (req.session.user) {
@@ -414,21 +432,20 @@ app.post('/api/return', async (req, res) => {
     }
 
   }
-
   res.redirect('/error.html');
 })
-app.post('/api/sendItem', ensureSupplier, async (req, res) => {
+app.post('/api/dispatch', ensureSupplier, async (req, res) => {
   console.log('here' + JSON.stringify(req.body))
   if (req.session.user) {
-    if (ensureComplete([types.RETURN, types.ONROUTE], req.body, accessLevel.CUSTOMER, req.body.createBy)) {
+    if (ensureComplete([types.RETURN, types.DAMAGED, types.DISPATCH, types.DELIVERED], req.body, accessLevel.CUSTOMER, req.body.createBy)) {
       return res.json({
         response: " this item can no longer be sent"
       })
     }
     try {
       // delete req.body.timestampc
-      req.body.type = types.ONROUTE
-      const transaction = new Transaction(types.ONROUTE, req.body, accessLevel.CUSTOMER, req.session.user.email).transaction;
+      req.body.type = types.DISPATCH
+      const transaction = new Transaction(types.DISPATCH, req.body, accessLevel.CUSTOMER, req.session.user.email).transaction;
 
       blockchain.addBlock(blockchain.getChain(), transaction, accessLevel.CUSTOMER)
       return res.json({
@@ -439,7 +456,6 @@ app.post('/api/sendItem', ensureSupplier, async (req, res) => {
         response: "item cannot be returned again"
       })
     }
-
   }
   res.redirect('/error.html');
 })
@@ -447,7 +463,7 @@ app.post('/api/delivery', ensureDriver, async (req, res) => {
   console.log('here' + JSON.stringify(req.body))
   if (req.session.user) {
 
-    if (ensureComplete([types.RETURN, types.DELIVERED], req.body, accessLevel.CUSTOMER, req.body.createBy))
+    if (ensureComplete([types.RETURN, types.DAMAGED, types.ORDER, types.DELIVERED], req.body, accessLevel.CUSTOMER, req.body.createBy))
       return res.json({
         response: "this item can no longer be sent"
       })
@@ -464,8 +480,29 @@ app.post('/api/delivery', ensureDriver, async (req, res) => {
         response: "Error with system try again"
       })
     }
-
-
+  }
+  res.redirect('/error.html');
+})
+app.post('/api/attached', ensureDriver, async (req, res) => {
+  console.log('here' + JSON.stringify(req.body))
+  if (req.session.user) {
+    if (ensureComplete([types.RETURN, types.DELIVERED], req.body, accessLevel.CUSTOMER, req.body.createBy))
+      return res.json({
+        response: "this item can no longer be sent"
+      })
+    try {
+      // delete req.body.timestampc
+      req.body.type = types.ATTACHED
+      const transaction = new Transaction(types.ATTACHED, req.body, accessLevel.CUSTOMER, req.session.user.email).transaction;
+      blockchain.addBlock(blockchain.getChain(), transaction, accessLevel.CUSTOMER)
+      return res.json({
+        response: "Sensor attached"
+      })
+    } catch (e) {
+      return res.json({
+        response: "Error with system try again"
+      })
+    }
   }
   res.redirect('/error.html');
 })

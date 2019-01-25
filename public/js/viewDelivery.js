@@ -21,7 +21,7 @@ const viewChain = new Vue({
 
     this.viewChain = await apiService.get('/api/block');
     let removeDups = this.checkDuplicates(this.viewChain);
-    this.viewChain = this.viewChain.filter(x => removeDups.includes(x.timestamp) && x.type == "ONROUTE");
+    this.viewChain = this.viewChain.filter(x => removeDups.includes(x.timestamp) && x.type == "DISPATCHED");
     this.itemList = this.viewChain
     console.log(this.viewChain)
 
