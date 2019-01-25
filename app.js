@@ -445,7 +445,8 @@ app.post('/api/dispatch', ensureSupplier, async (req, res) => {
   if (req.session.user) {
     if (ensureComplete([types.RETURN, types.DAMAGED, types.DISPATCH, types.DELIVERED], req.body, accessLevel.CUSTOMER, req.body.createBy)) {
       return res.json({
-        response: " this item can no longer be sent"
+        response: " this item can no longer be sent",
+        success: false
       })
     }
     try {
@@ -455,11 +456,13 @@ app.post('/api/dispatch', ensureSupplier, async (req, res) => {
 
       blockchain.addBlock(blockchain.getChain(), transaction, accessLevel.CUSTOMER)
       return res.json({
-        response: "item sent to customer"
+        response: "item sent to customer",
+        success: true
       })
     } catch (e) {
       return res.json({
-        response: "item cannot be returned again"
+        response: "item cannot be returned again",
+        success: false
       })
     }
   }
