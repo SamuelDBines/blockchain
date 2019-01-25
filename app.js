@@ -489,7 +489,7 @@ app.post('/api/delivery', ensureDriver, async (req, res) => {
   res.redirect('/error.html');
 })
 app.post('/api/attached', async (req, res) => {
-
+  console.log('here' + JSON.stringify(req.body))
   if (ensureComplete([types.RETURN, types.DELIVERED], req.body, accessLevel.CUSTOMER, req.body.createBy))
     return res.json({
       response: "this item can no longer be sent"
