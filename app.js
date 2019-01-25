@@ -391,6 +391,7 @@ app.get('/api/items', async (req, res) => {
 */
 app.post('/api/items', async (req, res) => {
   console.log(JSON.stringify(req.body))
+  console.log(JSON.stringify(req.session))
   res.json(JSON.parse(file.read(ITEMLIST)));
 })
 app.post('/api/order', async (req, res) => {
