@@ -61,7 +61,7 @@ const ensureAdmin = function (req, res, next) {
   return next(err)
 }
 const ensureSupplier = function (req, res, next) {
-  if (req.session.user && req.session.user.access == accessLevel.SUPPLIER) {
+  if (req.session.user && (req.session.user.access == accessLevel.SUPPLIER || req.session.user.access == accessLevel.SENSOR)) {
     return next();
   }
   var err = new Error('Not Found');
@@ -69,7 +69,7 @@ const ensureSupplier = function (req, res, next) {
   return next(err)
 }
 const ensureDriver = function (req, res, next) {
-  if (req.session.user && req.session.user.access == accessLevel.DRIVER) {
+  if (req.session.user && (req.session.user.access == accessLevel.DRIVER || req.session.user.access == accessLevel.SENSOR)) {
     return next();
   }
   var err = new Error('Not Found');
@@ -489,7 +489,7 @@ app.post('/api/delivery', ensureDriver, async (req, res) => {
   }
   res.redirect('/error.html');
 })
-app.post('/api/attached', async (req, res) => {
+app.post('/api/attached', ensureSupplier, async (req, res) => {
   console.log('here' + JSON.stringify(req.body))
   if (ensureComplete([types.RETURN, types.DELIVERED], req.body, accessLevel.CUSTOMER, req.body.createBy))
     return res.json({
