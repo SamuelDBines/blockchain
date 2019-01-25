@@ -492,7 +492,8 @@ app.post('/api/attached', async (req, res) => {
   console.log('here' + JSON.stringify(req.body))
   if (ensureComplete([types.RETURN, types.DELIVERED], req.body, accessLevel.CUSTOMER, req.body.createBy))
     return res.json({
-      response: "this item can no longer be sent"
+      response: "this item can no longer be sent",
+      success: true
     })
   try {
     // delete req.body.timestampc
@@ -500,11 +501,13 @@ app.post('/api/attached', async (req, res) => {
     const transaction = new Transaction(types.ATTACHED, req.body, accessLevel.CUSTOMER, req.body.createBy).transaction;
     blockchain.addBlock(blockchain.getChain(), transaction, accessLevel.CUSTOMER)
     return res.json({
-      response: "Sensor attached"
+      response: "Sensor attached",
+      success: false
     })
   } catch (e) {
     return res.json({
-      response: "Error with system try again"
+      response: "Error with system try again",
+      success: false
     })
   }
 })
