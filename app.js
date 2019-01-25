@@ -39,7 +39,8 @@ const accessLevel = {
   CUSTOMER: 'CUSTOMER',
   DRIVER: 'DRIVER',
   SUPPLIER: 'SUPPLIER',
-  ADMIN: 'ADMIN'
+  ADMIN: 'ADMIN',
+  SENSOR: 'SENSOR'
 }
 app.use(session({
   resave: true,
