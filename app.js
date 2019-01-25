@@ -389,6 +389,9 @@ app.get('/api/items', async (req, res) => {
 /*
  Changing an Items status 
 */
+app.post('/api/items', async (req, res) => {
+  res.json(JSON.parse(file.read(ITEMLIST)));
+})
 app.post('/api/order', async (req, res) => {
   const itemList = JSON.parse(file.read(ITEMLIST));
   console.log(req.body)
