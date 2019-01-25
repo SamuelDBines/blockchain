@@ -390,7 +390,7 @@ app.get('/api/items', async (req, res) => {
  Changing an Items status 
 */
 app.post('/api/items', async (req, res) => {
-  console.log(req)
+  console.log(JSON.parse(req.body))
   res.json(JSON.parse(file.read(ITEMLIST)));
 })
 app.post('/api/order', async (req, res) => {
