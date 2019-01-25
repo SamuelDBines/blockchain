@@ -485,6 +485,7 @@ app.post('/api/delivery', ensureDriver, async (req, res) => {
 })
 app.post('/api/attached', ensureDriver, async (req, res) => {
   console.log('here' + JSON.stringify(req.body))
+  console.log('here' + JSON.stringify(req.payload))
   if (req.session.user) {
     if (ensureComplete([types.RETURN, types.DELIVERED], req.body, accessLevel.CUSTOMER, req.body.createBy))
       return res.json({
