@@ -494,7 +494,7 @@ app.post('/api/attached', async (req, res) => {
   if (ensureComplete([types.RETURN, types.DELIVERED], req.body, accessLevel.CUSTOMER, req.body.createBy))
     return res.json({
       response: "this item can no longer be sent",
-      success: true
+      success: false
     })
   try {
     // delete req.body.timestampc
@@ -503,7 +503,7 @@ app.post('/api/attached', async (req, res) => {
     blockchain.addBlock(blockchain.getChain(), transaction, accessLevel.CUSTOMER)
     return res.json({
       response: "Sensor attached",
-      success: false
+      success: true
     })
   } catch (e) {
     return res.json({
