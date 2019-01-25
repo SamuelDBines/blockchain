@@ -489,30 +489,24 @@ app.post('/api/delivery', ensureDriver, async (req, res) => {
   res.redirect('/error.html');
 })
 app.post('/api/attached', async (req, res) => {
-  console.log('here' + JSON.stringify(req.body))
-  if (req.session.user) {
-    if (ensureComplete([types.RETURN, types.DELIVERED], req.body, accessLevel.CUSTOMER, req.body.createBy))
-      return res.json({
-        response: "this item can no longer be sent"
-      })
-    try {
-      // delete req.body.timestampc
-      req.body.type = types.ATTACHED
-      const transaction = new Transaction(types.ATTACHED, req.body, accessLevel.CUSTOMER, req.session.user.email).transaction;
-      blockchain.addBlock(blockchain.getChain(), transaction, accessLevel.CUSTOMER)
-      return res.json({
-        response: "Sensor attached"
-      })
-    } catch (e) {
-      return res.json({
-        response: "Error with system try again"
-      })
-    }
+
+  if (ensureComplete([types.RETURN, types.DELIVERED], req.body, accessLevel.CUSTOMER, req.body.createBy))
+    return res.json({
+      response: "this item can no longer be sent"
+    })
+  try {
+    // delete req.body.timestampc
+    req.body.type = types.ATTACHED
+    const transaction = new Transaction(types.ATTACHED, req.body, accessLevel.CUSTOMER, req.session.user.email).transaction;
+    blockchain.addBlock(blockchain.getChain(), transaction, accessLevel.CUSTOMER)
+    return res.json({
+      response: "Sensor attached"
+    })
+  } catch (e) {
+    return res.json({
+      response: "Error with system try again"
+    })
   }
-  return res.json({
-    response: "Error with system try again"
-  })
-  res.redirect('/error.html');
 })
 const ensureComplete = function (type, data, access, user) {
   const recentPull = blockchain.getWorldState(access);
