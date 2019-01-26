@@ -474,18 +474,9 @@ app.post('/api/dispatch', ensureSupplier, async (req, res) => {
   try {
     // delete req.body.timestampc
     req.body.type = types.DISPATCH
-    const transaction = new Transaction(
-      types.DISPATCH,
-      req.body,
-      accessLevel.CUSTOMER,
-      req.body.createBy,
-    ).transaction
+    const transaction = new Transaction(types.DISPATCH, req.body, accessLevel.CUSTOMER, req.body.createBy, ).transaction
 
-    blockchain.addBlock(
-      blockchain.getChain(),
-      transaction,
-      accessLevel.CUSTOMER,
-    )
+    blockchain.addBlock(blockchain.getChain(), transaction, accessLevel.CUSTOMER, )
     updateCall()
     return res.json({
       response: 'ITEM SENT',
@@ -575,26 +566,18 @@ const ensureComplete = function (type, data, access, user) {
   const recentPull = blockchain.getWorldState(access)
   const recentFilter = Object.keys(recentPull).map(k => recentPull[k])
   const quickTest = recentFilter
-    .filter(
-      item =>
-      item.createBy == user &&
-      item.code == data.code &&
-      item.timestamp == data.timestamp,
-    )
+    .filter(item => item.createBy == user && item.code == data.code && item.timestamp == data.timestamp, )
     .some(item => type.includes(item.type))
   if (quickTest) {
     return true
   }
+  console.log("here");
+
   const result = access == accessLevel.ADMIN ? ADMIN_CHAIN : CUSTOMER_CHAIN
   const filter = Object.keys(result).map(k => result[k])
   // const transaction = new Transaction(type, data, access, user).transaction;
   return filter
-    .filter(
-      item =>
-      item.createBy == user &&
-      item.code == data.code &&
-      item.timestamp == data.timestamp,
-    )
+    .filter(item => item.createBy == user && item.code == data.code && item.timestamp == data.timestamp, )
     .some(item => type.includes(item.type))
 }
 const updateLocal = function () {
