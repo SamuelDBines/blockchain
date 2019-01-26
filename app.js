@@ -16,6 +16,7 @@ const stateValue = 0
 let CUSTOMER_CHAIN = undefined
 let ADMIN_CHAIN = undefined
 const ip = require('ip')
+var request = require('request')
 app.use(express.static('public'))
 app.use(
   bodyParser.urlencoded({
@@ -157,61 +158,7 @@ const test = {
 }
 console.log(blockchain.getChainLength())
 console.log(blockchain.compareChain(test, 1))
-// currentBlock = blockchain.getChain();
-// console.log(currentBlock);
-// const unlockblock = encpt.decrypt(ENCRYPTKEY, currentBlock.previous, currentBlock.hash);
-// console.log(JSON.parse(unlockblock));
-// ress = JSON.parse(unlockblock)
-// console.log(ress.hash);
-// console.log(ress.previous);
-// const debock = encpt.decrypt(ENCRYPTKEY, ress.previous, currentBlock.previous);
-// console.log(debock)
-// console.log(encpt.decrypt(ENCRYPTKEY, 'test', JSON.parse(debock).hash))
-// console.log(encpt.decrypt(ENCRYPTKEY, currentBlock.previous, currentBlock.hash))
-// console.log(encpt.decrypt(ENCRYPTKEY, hash));
-// var hash = bcrypt.hashSync("bacon", bcrypt.genSaltSync(10));
 
-// console.log(
-//   bcrypt.compareSync("bacon", hash)); // true
-// bcrypt.compareSync("veggies", hash); // false
-// console.log(chainCode)
-// console.log(keys)
-
-// var readline = require('readline');
-// var rl = readline.createInterface({
-//   input: process.stdin,
-//   output: process.stdout,
-//   terminal: false
-// });
-
-// rl.on('line', function (line) {
-//   console.log(line);
-// })
-
-// var net = require('net');
-// var client = net.connect({
-//   port: 1337
-// }, function () {
-//   console.log('connected to server!');
-// });
-// client.on('data', function (data) {
-//   console.log(data.toString());
-//   // client.end();
-// });
-
-// client.write("howdy");
-
-// client.on('end', function () {
-//   console.log('disconnected from server');
-// });
-
-// app.post('/chat', async (req, res) => {
-//   console.log(req.body.close);
-//   client.write(req.body.chat);
-// })
-// app.get('*', (req, res) => {
-//   console.log('herer');
-// })
 app.get('/api/links', async (req, res) => {
   const itemList = JSON.parse(file.read(NAVLINKS))
   if (req.session.user) {
@@ -354,7 +301,9 @@ app.get('/supplier/items', ensureSupplier, (req, res) => {
 app.get('/admin/register', ensureAdmin, (req, res) => {
   return res.redirect('/registerParticpant.html')
 })
-
+/********************************************
+ * ROUTES
+ *******************************************/
 app.get('/logout', (req, res) => {
   req.session.user = undefined
   res.redirect('/login')
@@ -422,16 +371,15 @@ app.get('/pullKey', async (req, res) => {
   console.log('here')
   res.json(bcrypt.hashSync(JSON.stringify(chainCode), bcrypt.genSaltSync(10)))
 })
-const httpServer = http.createServer(app)
-
 app.get('/api/items', async (req, res) => {
   res.json(JSON.parse(file.read(ITEMLIST)))
 })
 
-app.get('/api/test', async (req, res) => {
-  updateLocal();
+app.get('/api/update', (req, res) => {
+  updateLocal()
   res.json(JSON.parse(file.read(ITEMLIST)))
 })
+
 
 /*
  Changing an Items status 
@@ -457,7 +405,7 @@ app.post('/api/order', async (req, res) => {
         transaction,
         accessLevel.CUSTOMER,
       )
-      console.log('ordered')
+      updateCall()
       return res.redirect('/success.html')
     } catch (e) {
       return res.redirect('/error.html')
@@ -496,6 +444,7 @@ app.post('/api/return', async (req, res) => {
         transaction,
         accessLevel.CUSTOMER,
       )
+      updateCall()
       return res.json({
         response: 'item returned',
       })
@@ -537,6 +486,7 @@ app.post('/api/dispatch', ensureSupplier, async (req, res) => {
       transaction,
       accessLevel.CUSTOMER,
     )
+    updateCall()
     return res.json({
       response: 'ITEM SENT',
       success: true,
@@ -575,6 +525,7 @@ app.post('/api/delivery', ensureDriver, async (req, res) => {
       transaction,
       accessLevel.CUSTOMER,
     )
+    updateCall()
     return res.json({
       response: 'ITEM DELIVERED',
     })
@@ -613,6 +564,7 @@ app.post('/api/attached', ensureSupplier, async (req, res) => {
       transaction,
       accessLevel.CUSTOMER,
     )
+    updateCall()
     return res.json({
       response: 'SENSOR ATTACHED',
       success: true,
@@ -624,6 +576,7 @@ app.post('/api/attached', ensureSupplier, async (req, res) => {
     })
   }
 })
+/* Functions for testing */
 const ensureComplete = function (type, data, access, user) {
   const recentPull = blockchain.getWorldState(access)
   const recentFilter = Object.keys(recentPull).map(k => recentPull[k])
@@ -656,24 +609,24 @@ const updateLocal = function () {
   ADMIN_CHAIN = blockchain.viewChainContents(accessLevel.ADMIN)
   console.log('Updated admin Chain')
 }
+const updateCall = function () {
+  request('http://localhost:8080/api/update', function (error, response, body) {
+    if (!error && response.statusCode == 200) {
+      return body // Print the google web page.
+    } else return error
+  })
+}
+
 app.get('/api/block', ensureDataPull, async (req, res) => {
   return res.json(req.body)
 })
 
 app.get('/api/recentActivity', ensureRecentPull, async (req, res) => {
-  // console.log(req.session.user)
   return res.json(req.body)
 })
-/* Fix Chain contents */
 CUSTOMER_CHAIN = blockchain.viewChainContents(accessLevel.CUSTOMER)
-console.log('Updated customer Chain')
 ADMIN_CHAIN = blockchain.viewChainContents(accessLevel.ADMIN)
-console.log('Updated admin Chain')
-setInterval(function () {
-  updateLocal();
-}, 30000)
-
-/* Start Server */
+const httpServer = http.createServer(app);
 httpServer.listen(process.env.PORT || 8080, () =>
   console.log('HTTP is running running'),
 )
