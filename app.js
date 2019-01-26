@@ -483,7 +483,7 @@ app.post('/api/dispatch', ensureSupplier, async (req, res) => {
 })
 app.post('/api/delivery', ensureDriver, async (req, res) => {
   console.log(req.body)
-  if (ensureComplete([types.RETURN, types.DAMAGED, types.DELIVERED], req.body, accessLevel.CUSTOMER, req.body.createBy)) {
+  if (ensureComplete([types.RETURN, types.DELIVERED], req.body, accessLevel.CUSTOMER, req.body.createBy)) {
     return res.json({
       response: 'FAILED DELIVERY',
       success: true,
