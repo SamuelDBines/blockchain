@@ -274,7 +274,6 @@ app.post('/supplier/add', ensureSupplier, (req, res, next) => {
 })
 app.post('/supplier/remove', ensureSupplier, (req, res, next) => {
   let itemList = JSON.parse(file.read(ITEMLIST))
-  console.log(itemList)
 
   try {
     if (itemList.some(item => item.code == req.body.code)) {
@@ -513,7 +512,28 @@ app.post('/api/delivery', ensureDriver, async (req, res) => {
     })
   }
 })
-
+app.post('/api/damage', ensureDriver, async (req, res) => {
+  console.log("HERE")
+  if (req.body && req.body.type === types.DISPATCH && ensureComplete([types.RETURN, types.DAMAGED, types.DELIVERED], req.body, accessLevel.CUSTOMER, req.body.createBy)) {
+    return res.json({
+      response: 'FAILED TO UPDATE DAMAGED ITEM'
+    })
+  }
+  try {
+    req.body.type = types.DAMAGED
+    const transaction = new Transaction(types.DAMAGED, req.body, accessLevel.ADMIN, req.body.createBy, ).transaction
+    blockchain.addBlock(blockchain.getChain(), transaction, accessLevel.CUSTOMER)
+    updateCall()
+    return res.json({
+      response: 'ITEM DAMAGE MAY HAVE OCCURED',
+      success: true,
+    })
+  } catch (e) {
+    return res.json({
+      response: 'FAILED TO UPDATE DAMAGED ITEM',
+    })
+  }
+})
 app.post('/api/attached', ensureSupplier, async (req, res) => {
   console.log('here' + JSON.stringify(req.body))
   if (

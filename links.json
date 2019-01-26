@@ -13,10 +13,6 @@
       "link": "/home"
     },
     {
-      "text": "Recent Activity",
-      "link": "/recent"
-    },
-    {
       "text": "Order History",
       "link": "/view"
     },
