@@ -458,17 +458,10 @@ app.post('/api/return', async (req, res) => {
 })
 app.post('/api/dispatch', ensureSupplier, async (req, res) => {
   console.log('here' + JSON.stringify(req.body))
-  if (
-    ensureComplete(
-      [types.RETURN, types.DAMAGED, types.DISPATCH, types.DELIVERED],
-      req.body,
-      accessLevel.CUSTOMER,
-      req.body.createBy,
-    )
-  ) {
+  if (ensureComplete([types.RETURN, types.DAMAGED, types.DISPATCH, types.DELIVERED], req.body,
+      accessLevel.CUSTOMER, req.body.createBy, )) {
     return res.json({
       response: ' this item can no longer be sent',
-      success: false,
     })
   }
   try {
@@ -485,15 +478,15 @@ app.post('/api/dispatch', ensureSupplier, async (req, res) => {
   } catch (e) {
     return res.json({
       response: 'FAILED TO DISPATCH',
-      success: false,
     })
   }
 })
 app.post('/api/delivery', ensureDriver, async (req, res) => {
   console.log(req.body)
-  if (ensureComplete([types.RETURN, types.DAMAGED, types.ATTACHED, types.DELIVERED], req.body, accessLevel.CUSTOMER, req.body.createBy)) {
+  if (ensureComplete([types.RETURN, types.DAMAGED, types.DELIVERED], req.body, accessLevel.CUSTOMER, req.body.createBy)) {
     return res.json({
       response: 'FAILED DELIVERY',
+      success: true,
     })
   }
   try {
