@@ -64,7 +64,7 @@ const ensureAdmin = function (req, res, next) {
 const ensureSupplier = function (req, res, next) {
   console.log(req.body)
   console.log(req.body.access == accessLevel.SENSOR)
-  if (req.session.user && (req.session.user.access == accessLevel.SUPPLIER || req.body.access == accessLevel.SENSOR)) {
+  if ((req.session.user && req.session.user.access == accessLevel.SUPPLIER) || req.body.access == accessLevel.SENSOR) {
     delete req.body.access;
     return next();
   }
@@ -75,13 +75,13 @@ const ensureSupplier = function (req, res, next) {
 const ensureDriver = function (req, res, next) {
   console.log(req.body.access)
   console.log(req.body.access == accessLevel.SENSOR)
-  if (req.session.user && (req.session.user.access == accessLevel.DRIVER || req.body.access == accessLevel.SENSOR)) {
-    delete req.body.access;
-    return next();
-  }
-  var err = new Error('Not Found');
-  err.status = 404;
-  return next(err)
+  if ((req.session.user && req.session.user.access == accessLevel.DRIVER) || req.body.access == accessLevel.SENSOR)) {
+  delete req.body.access;
+  return next();
+}
+var err = new Error('Not Found');
+err.status = 404;
+return next(err)
 }
 
 /* Pulls order history for customer (May not be recent) */
