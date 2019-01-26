@@ -485,8 +485,7 @@ app.post('/api/delivery', ensureDriver, async (req, res) => {
   console.log(req.body)
   if (ensureComplete([types.RETURN, types.DAMAGED, types.DELIVERED], req.body, accessLevel.CUSTOMER, req.body.createBy)) {
     return res.json({
-      response: 'FAILED DELIVERY',
-      success: true,
+      response: 'FAILED DELIVERY'
     })
   }
   try {
@@ -506,6 +505,7 @@ app.post('/api/delivery', ensureDriver, async (req, res) => {
     updateCall()
     return res.json({
       response: 'ITEM DELIVERED',
+      success: true,
     })
   } catch (e) {
     return res.json({
