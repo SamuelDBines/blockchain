@@ -461,6 +461,7 @@ app.post('/api/dispatch', ensureSupplier, async (req, res) => {
       accessLevel.CUSTOMER, req.body.createBy, )) {
     return res.json({
       response: ' this item can no longer be sent',
+      success: true,
     })
   }
   try {
@@ -484,7 +485,8 @@ app.post('/api/delivery', ensureDriver, async (req, res) => {
   console.log(req.body)
   if (ensureComplete([types.RETURN, types.DAMAGED, types.DELIVERED], req.body, accessLevel.CUSTOMER, req.body.createBy)) {
     return res.json({
-      response: 'FAILED DELIVERY'
+      response: 'FAILED DELIVERY',
+      success: true,
     })
   }
   try {
@@ -516,7 +518,7 @@ app.post('/api/damage', ensureDriver, async (req, res) => {
   console.log("HERE")
   if (req.body && req.body.type === types.DISPATCH && ensureComplete([types.RETURN, types.DAMAGED, types.DELIVERED], req.body, accessLevel.CUSTOMER, req.body.createBy)) {
     return res.json({
-      response: 'FAILED TO UPDATE DAMAGED ITEM'
+      response: 'FAILED TO UPDATE DAMAGED ITEM',
     })
   }
   try {
@@ -546,7 +548,7 @@ app.post('/api/attached', ensureSupplier, async (req, res) => {
   )
     return res.json({
       response: 'this item can no longer be sent',
-      success: false,
+      success: true,
     })
   try {
     // delete req.body.timestampc
