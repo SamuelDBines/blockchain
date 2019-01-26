@@ -3,26 +3,26 @@ const http = require('http')
 const app = express()
 const bcrypt = require('bcrypt')
 const bodyParser = require('body-parser')
-const session = require("express-session");
-const Transaction = require('./transactions.js');
-const blockchain = require('./chainSetup.js');
-const Participant = require('./participant.js');
-const participant = new Participant();
-const File = require('./writeData.js');
-const file = new File();
+const session = require('express-session')
+const Transaction = require('./transactions.js')
+const blockchain = require('./chainSetup.js')
+const Participant = require('./participant.js')
+const participant = new Participant()
+const File = require('./writeData.js')
+const file = new File()
 const ITEMLIST = 'items.json'
-const NAVLINKS = 'links.json';
-const stateValue = 0;
-let CUSTOMER_CHAIN = undefined;
-let ADMIN_CHAIN = undefined;
-const ip = require("ip");
+const NAVLINKS = 'links.json'
+const stateValue = 0
+let CUSTOMER_CHAIN = undefined
+let ADMIN_CHAIN = undefined
+const ip = require('ip')
 app.use(express.static('public'))
 app.use(
   bodyParser.urlencoded({
     extended: true,
   }),
 )
-const ENCRYPTKEY = 'aes-128-cbc';
+const ENCRYPTKEY = 'aes-128-cbc'
 app.use(bodyParser.json())
 const types = {
   ORDER: 'ORDER',
@@ -33,113 +33,116 @@ const types = {
   DELIVERED: 'DELIVERED',
   DISPATCH: 'DISPATCH',
   DAMAGED: 'DAMAGED',
-  ATTACHED: 'ATTACHED'
+  ATTACHED: 'ATTACHED',
 }
 const accessLevel = {
   CUSTOMER: 'CUSTOMER',
   DRIVER: 'DRIVER',
   SUPPLIER: 'SUPPLIER',
   ADMIN: 'ADMIN',
-  SENSOR: 'SENSOR'
+  SENSOR: 'SENSOR',
 }
-app.use(session({
-  resave: true,
-  saveUninitialized: true,
-  secret: 'ABC123',
-  cookie: {
-    maxAge: 600000
-  }
-}));
+app.use(
+  session({
+    resave: true,
+    saveUninitialized: true,
+    secret: 'ABC123',
+    cookie: {
+      maxAge: 600000,
+    },
+  }),
+)
 
 /* Rulls prevent access */
 const ensureAdmin = function (req, res, next) {
   if (req.session.user && req.session.user.access == accessLevel.ADMIN) {
-    delete req.body.access;
-    return next();
+    delete req.body.access
+    return next()
   }
-  var err = new Error('Not Found');
-  err.status = 404;
+  var err = new Error('Not Found')
+  err.status = 404
   return next(err)
 }
 const ensureSupplier = function (req, res, next) {
-  if ((req.session.user && req.session.user.access == accessLevel.SUPPLIER) || req.body.access == accessLevel.SENSOR) {
-    delete req.body.access;
-    return next();
+  if (
+    (req.session.user && req.session.user.access == accessLevel.SUPPLIER) ||
+    req.body.access == accessLevel.SENSOR
+  ) {
+    delete req.body.access
+    return next()
   }
-  var err = new Error('Not Found');
-  err.status = 404;
+  var err = new Error('Not Found')
+  err.status = 404
   return next(err)
 }
 const ensureDriver = function (req, res, next) {
-  if ((req.session.user && req.session.user.access == accessLevel.DRIVER) || req.body.access == accessLevel.SENSOR) {
-    delete req.body.access;
-    return next();
+  if (
+    (req.session.user && req.session.user.access == accessLevel.DRIVER) ||
+    req.body.access == accessLevel.SENSOR
+  ) {
+    delete req.body.access
+    return next()
   }
-  var err = new Error('Not Found');
-  err.status = 404;
+  var err = new Error('Not Found')
+  err.status = 404
   return next(err)
 }
 
 /* Pulls order history for customer (May not be recent) */
 
 const ensureDataPull = function (req, res, next) {
-  const result = CUSTOMER_CHAIN; //blockchain.viewChainContents(accessLevel.CUSTOMER);
+  const result = CUSTOMER_CHAIN //blockchain.viewChainContents(accessLevel.CUSTOMER);
   if (req.session.user) {
-
-    let filter = Object.keys(result)
-      .map(function (k) {
-        return result[k];
-      })
+    let filter = Object.keys(result).map(function (k) {
+      return result[k]
+    })
     if (req.session.user.access == accessLevel.ADMIN) {
-      const admin = ADMIN_CHAIN;
-      filter = filter.concat(Object.keys(admin)
-        .map(function (k) {
-          return admin[k];
-        }))
+      const admin = ADMIN_CHAIN
+      filter = filter.concat(
+        Object.keys(admin).map(function (k) {
+          return admin[k]
+        }),
+      )
     }
     if (req.session.user.access == accessLevel.CUSTOMER) {
       filter = filter.filter(transaction => {
         return transaction.createBy == req.session.user.email || false
-      });
+      })
     }
-    req.body = filter;
-    return next();
-
+    req.body = filter
+    return next()
   }
 
-  var err = new Error('Not Found');
-  err.status = 404;
+  var err = new Error('Not Found')
+  err.status = 404
   return next(err)
 }
 
-
 const ensureRecentPull = function (req, res, next) {
-  const result = blockchain.getWorldState(accessLevel.CUSTOMER); //blockchain.viewChainContents(accessLevel.CUSTOMER);
+  const result = blockchain.getWorldState(accessLevel.CUSTOMER) //blockchain.viewChainContents(accessLevel.CUSTOMER);
   if (req.session.user) {
-
-    let filter = Object.keys(result)
-      .map(function (k) {
-        return result[k];
-      })
+    let filter = Object.keys(result).map(function (k) {
+      return result[k]
+    })
     if (req.session.user.access == accessLevel.ADMIN) {
-      const admin = blockchain.getWorldState(accessLevel.ADMIN);
-      filter = filter.concat(Object.keys(admin)
-        .map(function (k) {
-          return admin[k];
-        }))
+      const admin = blockchain.getWorldState(accessLevel.ADMIN)
+      filter = filter.concat(
+        Object.keys(admin).map(function (k) {
+          return admin[k]
+        }),
+      )
     }
     if (req.session.user.access == accessLevel.CUSTOMER) {
       filter = filter.filter(transaction => {
         return transaction.createBy == req.session.user.email || false
-      });
+      })
     }
-    req.body = filter;
-    return next();
-
+    req.body = filter
+    return next()
   }
 
-  var err = new Error('Not Found');
-  err.status = 404;
+  var err = new Error('Not Found')
+  err.status = 404
   return next(err)
 }
 // let count = 0;
@@ -148,13 +151,12 @@ const ensureRecentPull = function (req, res, next) {
 // let currentBlock = blockchain.getChain();
 // let previous = JSON.parse(encpt.decrypt(ENCRYPTKEY, currentBlock.previous, currentBlock.hash));
 
-
 const test = {
-  "previous": "4169d5182679e9626a1ff424704df44e5f6f87931a203ee8929c6733bb33d8a99f7ba21db96ad801e9027a2334ea4c7bc1a3cfd7c5f7ad686aaaa1f62005b5f157bc9d4ae8f742393e17eb3bf040a588a1bace8545f21ef79be78dee5154ed52279801ecd97147429e4827668ab63e88fb4b34225d1087efb8e85f92144fe6e6da1f7eff1fef7d02f76dbba602296cda270b6de5f233d4dc11f2042a7b692aec",
-  "hash": "8992f05766f19090937593c214942a0d935ee867c4ad0075732e5d7b808e93d5410534882b0d2a8935917d4b77ac2b2cc7f86775129b312266f28d9843e074321c32b98226840bcde9dc18791076448b0d795c01dc16ded8344ef6f8060bb1b21b865155af7538f89901a559f5db94a5199975631e30f6bbd12f4615e835e5668d43729ebd1dea901ebab966040cda5bfa5ef6ba4c04f7c5a5aff2867ea6cf7f60bb820a5d3c1c3f02f78275831e4e0dfb43359bd3e5accf277e889099bdeb7040dc54f23129c009e794067a3658ab2e2987392d0bdafd00c1ee6ab8e68e67486d84e4f50a172d3396b961e668acfd6735768dd6a14045edbc882ebd19624826e077e306d02534f2af5a0644bdbf700f283583a9a6dbc17a30219ad8e962cd55b887669fdab9af0f1973a9bedae39dfe004ed127a03c6266724f141722b079c37c22871f6be0b8498f8d9eca021be186919b4b5ce558c143841a8813fb7bba01def131d005a5e3b705be23980385618e"
+  previous: '4169d5182679e9626a1ff424704df44e5f6f87931a203ee8929c6733bb33d8a99f7ba21db96ad801e9027a2334ea4c7bc1a3cfd7c5f7ad686aaaa1f62005b5f157bc9d4ae8f742393e17eb3bf040a588a1bace8545f21ef79be78dee5154ed52279801ecd97147429e4827668ab63e88fb4b34225d1087efb8e85f92144fe6e6da1f7eff1fef7d02f76dbba602296cda270b6de5f233d4dc11f2042a7b692aec',
+  hash: '8992f05766f19090937593c214942a0d935ee867c4ad0075732e5d7b808e93d5410534882b0d2a8935917d4b77ac2b2cc7f86775129b312266f28d9843e074321c32b98226840bcde9dc18791076448b0d795c01dc16ded8344ef6f8060bb1b21b865155af7538f89901a559f5db94a5199975631e30f6bbd12f4615e835e5668d43729ebd1dea901ebab966040cda5bfa5ef6ba4c04f7c5a5aff2867ea6cf7f60bb820a5d3c1c3f02f78275831e4e0dfb43359bd3e5accf277e889099bdeb7040dc54f23129c009e794067a3658ab2e2987392d0bdafd00c1ee6ab8e68e67486d84e4f50a172d3396b961e668acfd6735768dd6a14045edbc882ebd19624826e077e306d02534f2af5a0644bdbf700f283583a9a6dbc17a30219ad8e962cd55b887669fdab9af0f1973a9bedae39dfe004ed127a03c6266724f141722b079c37c22871f6be0b8498f8d9eca021be186919b4b5ce558c143841a8813fb7bba01def131d005a5e3b705be23980385618e',
 }
-console.log(blockchain.getChainLength());
-console.log(blockchain.compareChain(test, 1));
+console.log(blockchain.getChainLength())
+console.log(blockchain.compareChain(test, 1))
 // currentBlock = blockchain.getChain();
 // console.log(currentBlock);
 // const unlockblock = encpt.decrypt(ENCRYPTKEY, currentBlock.previous, currentBlock.hash);
@@ -186,7 +188,6 @@ console.log(blockchain.compareChain(test, 1));
 //   console.log(line);
 // })
 
-
 // var net = require('net');
 // var client = net.connect({
 //   port: 1337
@@ -212,7 +213,7 @@ console.log(blockchain.compareChain(test, 1));
 //   console.log('herer');
 // })
 app.get('/api/links', async (req, res) => {
-  const itemList = JSON.parse(file.read(NAVLINKS));
+  const itemList = JSON.parse(file.read(NAVLINKS))
   if (req.session.user) {
     if (req.session.user.access == accessLevel.ADMIN)
       return res.json(itemList.admin)
@@ -225,32 +226,46 @@ app.get('/api/links', async (req, res) => {
   res.json(itemList.loggedOut)
 })
 app.get('/api/dispatch', (req, res) => {
-  let map = Object.values(CUSTOMER_CHAIN);
-  let dups = {};
+  let map = Object.values(CUSTOMER_CHAIN)
+  let dups = {}
   map.forEach(element => {
-    dups[element.timestamp] ? dups[element.timestamp].push(element.type) : dups[element.timestamp] = [element.type];
+    dups[element.timestamp] ?
+      dups[element.timestamp].push(element.type) :
+      (dups[element.timestamp] = [element.type])
   })
   Object.keys(dups).forEach(element => {
-    if (dups[element].includes("RETURN") || dups[element].includes("DELIVERED") || dups[element].includes("ORDER") || dups[element].includes("DISPATCH")) {
-      delete dups[element];
+    if (
+      dups[element].includes('RETURN') ||
+      dups[element].includes('DELIVERED') ||
+      dups[element].includes('ORDER') ||
+      dups[element].includes('DISPATCH')
+    ) {
+      delete dups[element]
     }
   })
   return res.json(map.filter(x => Object.keys(dups).includes(x.timestamp)))
 })
 app.post('/api/checkItem', ensureSupplier, (req, res) => {
-  let map = Object.values(CUSTOMER_CHAIN);
+  let map = Object.values(CUSTOMER_CHAIN)
 
   return res.json(map.filter(x => x.timestamp == req.body.timestamp))
 })
 app.get('/api/attach', (req, res) => {
-  let map = Object.values(CUSTOMER_CHAIN);
-  let dups = {};
+  let map = Object.values(CUSTOMER_CHAIN)
+  let dups = {}
   map.forEach(element => {
-    dups[element.timestamp] ? dups[element.timestamp].push(element.type) : dups[element.timestamp] = [element.type];
+    dups[element.timestamp] ?
+      dups[element.timestamp].push(element.type) :
+      (dups[element.timestamp] = [element.type])
   })
   Object.keys(dups).forEach(element => {
-    if (dups[element].includes("RETURN") || dups[element].includes("DELIVERED") || dups[element].includes("ATTACHED") || dups[element].includes("DISPATCH")) {
-      delete dups[element];
+    if (
+      dups[element].includes('RETURN') ||
+      dups[element].includes('DELIVERED') ||
+      dups[element].includes('ATTACHED') ||
+      dups[element].includes('DISPATCH')
+    ) {
+      delete dups[element]
     }
   })
   return res.json(map.filter(x => Object.keys(dups).includes(x.timestamp)))
@@ -258,62 +273,78 @@ app.get('/api/attach', (req, res) => {
 app.post('/register', async (req, res) => {
   const userData = {
     name: req.body.name,
-    email: req.body.email
+    email: req.body.email,
   }
-  const accountCreated = participant.createUser('access.json', ENCRYPTKEY, (req.body.email + req.body.password), userData, req.body.access || accessLevel.CUSTOMER)
-  if (accountCreated)
-    return res.redirect('/home');
-  return res.send('user exists');
+  const accountCreated = participant.createUser(
+    'access.json',
+    ENCRYPTKEY,
+    req.body.email + req.body.password,
+    userData,
+    req.body.access || accessLevel.CUSTOMER,
+  )
+  if (accountCreated) return res.redirect('/home')
+  return res.send('user exists')
 })
 app.post('/login', async (req, res) => {
-  if (req.session.user)
-    return res.send("Already logged in");
+  if (req.session.user) return res.send('Already logged in')
 
-  const loggedIn = participant.loginUser('access.json', ENCRYPTKEY, (req.body.email + req.body.password))
+  const loggedIn = participant.loginUser(
+    'access.json',
+    ENCRYPTKEY,
+    req.body.email + req.body.password,
+  )
   if (loggedIn) {
-    req.session.user = JSON.parse(loggedIn);
+    req.session.user = JSON.parse(loggedIn)
 
-    return res.redirect('/home');
+    return res.redirect('/home')
   }
 
-  res.send('Unknown user');
+  res.send('Unknown user')
 })
 
-
 app.post('/supplier/add', ensureSupplier, (req, res, next) => {
-  const itemList = JSON.parse(file.read(ITEMLIST));
-  console.log(itemList);
+  const itemList = JSON.parse(file.read(ITEMLIST))
+  console.log(itemList)
   if (itemList.some(item => item.code == req.body.code)) {
-    var err = new Error('Item Code Exists');
-    err.status = 404;
+    var err = new Error('Item Code Exists')
+    err.status = 404
     return next(err)
   }
   try {
-    const transaction = new Transaction(types.INSERT, req.body, accessLevel.ADMIN, req.session.user.email).transaction;
+    const transaction = new Transaction(
+      types.INSERT,
+      req.body,
+      accessLevel.ADMIN,
+      req.session.user.email,
+    ).transaction
     blockchain.addBlock(blockchain.getChain(), transaction, accessLevel.ADMIN)
-    itemList.push(req.body);
-    file.write(ITEMLIST, JSON.stringify(itemList));
+    itemList.push(req.body)
+    file.write(ITEMLIST, JSON.stringify(itemList))
     res.redirect('/home')
   } catch (e) {
     return res.redirect('/error.html')
   }
-
 })
 app.post('/supplier/remove', ensureSupplier, (req, res, next) => {
-  let itemList = JSON.parse(file.read(ITEMLIST));
-  console.log(itemList);
+  let itemList = JSON.parse(file.read(ITEMLIST))
+  console.log(itemList)
 
   try {
     if (itemList.some(item => item.code == req.body.code)) {
       itemList = itemList.filter(item => item.code != req.body.code)
-      const transaction = new Transaction(types.DELETE, req.body, accessLevel.ADMIN, req.session.user.email).transaction;
+      const transaction = new Transaction(
+        types.DELETE,
+        req.body,
+        accessLevel.ADMIN,
+        req.session.user.email,
+      ).transaction
       blockchain.addBlock(blockchain.getChain(), transaction, accessLevel.ADMIN)
-      file.write(ITEMLIST, JSON.stringify(itemList));
+      file.write(ITEMLIST, JSON.stringify(itemList))
       return res.redirect('/home')
     }
   } catch (e) {
-    var err = new Error('Cannot find item Code');
-    err.status = 404;
+    var err = new Error('Cannot find item Code')
+    err.status = 404
     return next(err)
   }
 })
@@ -325,12 +356,12 @@ app.get('/admin/register', ensureAdmin, (req, res) => {
 })
 
 app.get('/logout', (req, res) => {
-  req.session.user = undefined;
-  res.redirect('/login');
+  req.session.user = undefined
+  res.redirect('/login')
 })
 
 app.get('/getChain', async (req, res) => {
-  res.json(blockchain.getChain());
+  res.json(blockchain.getChain())
 })
 app.get('/', async (req, res) => {
   res.redirect('/home')
@@ -357,10 +388,13 @@ app.get('/delivery', ensureDriver, async (req, res) => {
   res.redirect('/viewDelivery.html')
 })
 app.get('/view', async (req, res) => {
-
   if (req.session.user) {
     console.log(req.session.user)
-    if (req.session.user.access == accessLevel.ADMIN || req.session.user.access == accessLevel.SUPPLIER || req.session.user.access == accessLevel.DRIVER)
+    if (
+      req.session.user.access == accessLevel.ADMIN ||
+      req.session.user.access == accessLevel.SUPPLIER ||
+      req.session.user.access == accessLevel.DRIVER
+    )
       return res.redirect('/viewAdmin.html')
     return res.redirect('/viewchain.html')
   }
@@ -385,170 +419,259 @@ app.get('/api/account', async (req, res) => {
   res.redirect('/login')
 })
 app.get('/pullKey', async (req, res) => {
-  console.log('here');
-  res.json(bcrypt.hashSync(JSON.stringify(chainCode), bcrypt.genSaltSync(10)));
+  console.log('here')
+  res.json(bcrypt.hashSync(JSON.stringify(chainCode), bcrypt.genSaltSync(10)))
 })
 const httpServer = http.createServer(app)
 
 app.get('/api/items', async (req, res) => {
-  res.json(JSON.parse(file.read(ITEMLIST)));
+  res.json(JSON.parse(file.read(ITEMLIST)))
 })
 
+app.get('/api/test', async (req, res) => {
+  updateLocal();
+  res.json(JSON.parse(file.read(ITEMLIST)))
+})
 
 /*
  Changing an Items status 
 */
 app.post('/api/items', async (req, res) => {
-  console.log(JSON.stringify(req.body))
-  console.log(JSON.stringify(req.session))
-  res.json(JSON.parse(file.read(ITEMLIST)));
+  res.json(JSON.parse(file.read(ITEMLIST)))
 })
 app.post('/api/order', async (req, res) => {
-  const itemList = JSON.parse(file.read(ITEMLIST));
+  const itemList = JSON.parse(file.read(ITEMLIST))
   console.log(req.body)
   if (req.session.user && itemList.some(item => item.code == req.body.code)) {
     try {
-      req.body.timestamp = new Date();
-      req.body.type = types.ORDER;
-      const transaction = new Transaction(types.ORDER, req.body, accessLevel.CUSTOMER, req.session.user.email).transaction;
-      blockchain.addBlock(blockchain.getChain(), transaction, accessLevel.CUSTOMER)
-      console.log('ordered');
-      return res.redirect('/success.html');
+      req.body.timestamp = new Date()
+      req.body.type = types.ORDER
+      const transaction = new Transaction(
+        types.ORDER,
+        req.body,
+        accessLevel.CUSTOMER,
+        req.session.user.email,
+      ).transaction
+      blockchain.addBlock(
+        blockchain.getChain(),
+        transaction,
+        accessLevel.CUSTOMER,
+      )
+      console.log('ordered')
+      return res.redirect('/success.html')
     } catch (e) {
       return res.redirect('/error.html')
     }
   }
 
-  res.redirect('/error.html');
-
+  res.redirect('/error.html')
 })
 app.post('/api/return', async (req, res) => {
   console.log('here' + JSON.stringify(req.body))
   if (req.session.user) {
-    if (ensureComplete([types.RETURN], req.body, accessLevel.CUSTOMER, req.body.createBy)) {
+    if (
+      ensureComplete(
+        [types.RETURN],
+        req.body,
+        accessLevel.CUSTOMER,
+        req.body.createBy,
+      )
+    ) {
       return res.json({
-        response: "item cannot be returned again"
+        response: 'item cannot be returned again',
       })
     }
     try {
       // delete req.body.timestampc
       req.body.type = types.RETURN
-      const transaction = new Transaction(types.RETURN, req.body, accessLevel.CUSTOMER, req.session.user.email).transaction;
+      const transaction = new Transaction(
+        types.RETURN,
+        req.body,
+        accessLevel.CUSTOMER,
+        req.session.user.email,
+      ).transaction
 
-      blockchain.addBlock(blockchain.getChain(), transaction, accessLevel.CUSTOMER)
+      blockchain.addBlock(
+        blockchain.getChain(),
+        transaction,
+        accessLevel.CUSTOMER,
+      )
       return res.json({
-        response: "item returned"
+        response: 'item returned',
       })
     } catch (e) {
       return res.json({
-        response: "item cannot be returned again"
+        response: 'item cannot be returned again',
       })
     }
-
   }
-  res.redirect('/error.html');
+  res.redirect('/error.html')
 })
 app.post('/api/dispatch', ensureSupplier, async (req, res) => {
   console.log('here' + JSON.stringify(req.body))
-  if (ensureComplete([types.RETURN, types.DAMAGED, types.DISPATCH, types.DELIVERED], req.body, accessLevel.CUSTOMER, req.body.createBy)) {
+  if (
+    ensureComplete(
+      [types.RETURN, types.DAMAGED, types.DISPATCH, types.DELIVERED],
+      req.body,
+      accessLevel.CUSTOMER,
+      req.body.createBy,
+    )
+  ) {
     return res.json({
-      response: " this item can no longer be sent",
-      success: false
+      response: ' this item can no longer be sent',
+      success: false,
     })
   }
   try {
     // delete req.body.timestampc
     req.body.type = types.DISPATCH
-    const transaction = new Transaction(types.DISPATCH, req.body, accessLevel.CUSTOMER, req.body.createBy).transaction;
+    const transaction = new Transaction(
+      types.DISPATCH,
+      req.body,
+      accessLevel.CUSTOMER,
+      req.body.createBy,
+    ).transaction
 
-    blockchain.addBlock(blockchain.getChain(), transaction, accessLevel.CUSTOMER)
+    blockchain.addBlock(
+      blockchain.getChain(),
+      transaction,
+      accessLevel.CUSTOMER,
+    )
     return res.json({
-      response: "ITEM SENT",
-      success: true
+      response: 'ITEM SENT',
+      success: true,
     })
   } catch (e) {
     return res.json({
-      response: "FAILED TO DISPATCH",
-      success: false
+      response: 'FAILED TO DISPATCH',
+      success: false,
     })
   }
 })
 app.post('/api/delivery', ensureDriver, async (req, res) => {
   console.log('here' + JSON.stringify(req.body))
-  if (ensureComplete([types.RETURN, types.DAMAGED, types.ORDER, types.DELIVERED], req.body, accessLevel.CUSTOMER, req.body.createBy))
+  if (
+    ensureComplete(
+      [types.RETURN, types.DAMAGED, types.ORDER, types.DELIVERED],
+      req.body,
+      accessLevel.CUSTOMER,
+      req.body.createBy,
+    )
+  )
     return res.json({
-      response: "this item can no longer be sent"
+      response: 'this item can no longer be sent',
     })
   try {
     // delete req.body.timestampc
     req.body.type = types.DELIVERED
-    const transaction = new Transaction(types.DELIVERED, req.body, accessLevel.CUSTOMER, req.body.createBy).transaction;
-    blockchain.addBlock(blockchain.getChain(), transaction, accessLevel.CUSTOMER)
+    const transaction = new Transaction(
+      types.DELIVERED,
+      req.body,
+      accessLevel.CUSTOMER,
+      req.body.createBy,
+    ).transaction
+    blockchain.addBlock(
+      blockchain.getChain(),
+      transaction,
+      accessLevel.CUSTOMER,
+    )
     return res.json({
-      response: "ITEM DELIVERED"
+      response: 'ITEM DELIVERED',
     })
   } catch (e) {
     return res.json({
-      response: "FAILED TO DELIVER"
+      response: 'FAILED TO DELIVER',
     })
   }
 })
+
 app.post('/api/attached', ensureSupplier, async (req, res) => {
   console.log('here' + JSON.stringify(req.body))
-  if (ensureComplete([types.RETURN, types.DELIVERED], req.body, accessLevel.CUSTOMER, req.body.createBy))
+  if (
+    ensureComplete(
+      [types.RETURN, types.DELIVERED],
+      req.body,
+      accessLevel.CUSTOMER,
+      req.body.createBy,
+    )
+  )
     return res.json({
-      response: "this item can no longer be sent",
-      success: false
+      response: 'this item can no longer be sent',
+      success: false,
     })
   try {
     // delete req.body.timestampc
     req.body.type = types.ATTACHED
-    const transaction = new Transaction(types.ATTACHED, req.body, accessLevel.CUSTOMER, req.body.createBy).transaction;
-    blockchain.addBlock(blockchain.getChain(), transaction, accessLevel.CUSTOMER)
+    const transaction = new Transaction(
+      types.ATTACHED,
+      req.body,
+      accessLevel.CUSTOMER,
+      req.body.createBy,
+    ).transaction
+    blockchain.addBlock(
+      blockchain.getChain(),
+      transaction,
+      accessLevel.CUSTOMER,
+    )
     return res.json({
-      response: "SENSOR ATTACHED",
-      success: true
+      response: 'SENSOR ATTACHED',
+      success: true,
     })
   } catch (e) {
     return res.json({
-      response: "Error with system try again",
-      success: false
+      response: 'Error with system try again',
+      success: false,
     })
   }
 })
 const ensureComplete = function (type, data, access, user) {
-  const recentPull = blockchain.getWorldState(access);
+  const recentPull = blockchain.getWorldState(access)
   const recentFilter = Object.keys(recentPull).map(k => recentPull[k])
-  const quickTest = recentFilter.filter(item => item.createBy == user && item.code == data.code && item.timestamp == data.timestamp).some(item => type.includes(item.type))
+  const quickTest = recentFilter
+    .filter(
+      item =>
+      item.createBy == user &&
+      item.code == data.code &&
+      item.timestamp == data.timestamp,
+    )
+    .some(item => type.includes(item.type))
   if (quickTest) {
-    return true;
+    return true
   }
-  const result = access == accessLevel.ADMIN ? ADMIN_CHAIN : CUSTOMER_CHAIN;
+  const result = access == accessLevel.ADMIN ? ADMIN_CHAIN : CUSTOMER_CHAIN
   const filter = Object.keys(result).map(k => result[k])
   // const transaction = new Transaction(type, data, access, user).transaction;
-  return filter.filter(item => item.createBy == user && item.code == data.code && item.timestamp == data.timestamp).some(item => type.includes(item.type));
+  return filter
+    .filter(
+      item =>
+      item.createBy == user &&
+      item.code == data.code &&
+      item.timestamp == data.timestamp,
+    )
+    .some(item => type.includes(item.type))
 }
-
+const updateLocal = function () {
+  CUSTOMER_CHAIN = blockchain.viewChainContents(accessLevel.CUSTOMER)
+  console.log('Updated customer Chain')
+  ADMIN_CHAIN = blockchain.viewChainContents(accessLevel.ADMIN)
+  console.log('Updated admin Chain')
+}
 app.get('/api/block', ensureDataPull, async (req, res) => {
-  return res.json(req.body);
+  return res.json(req.body)
 })
 
 app.get('/api/recentActivity', ensureRecentPull, async (req, res) => {
-
   // console.log(req.session.user)
   return res.json(req.body)
 })
 /* Fix Chain contents */
-CUSTOMER_CHAIN = blockchain.viewChainContents(accessLevel.CUSTOMER);
-console.log("Updated customer Chain")
-ADMIN_CHAIN = blockchain.viewChainContents(accessLevel.ADMIN);
-console.log("Updated admin Chain")
+CUSTOMER_CHAIN = blockchain.viewChainContents(accessLevel.CUSTOMER)
+console.log('Updated customer Chain')
+ADMIN_CHAIN = blockchain.viewChainContents(accessLevel.ADMIN)
+console.log('Updated admin Chain')
 setInterval(function () {
-  CUSTOMER_CHAIN = blockchain.viewChainContents(accessLevel.CUSTOMER);
-  console.log("Updated customer Chain")
-  ADMIN_CHAIN = blockchain.viewChainContents(accessLevel.ADMIN);
-  console.log("Updated admin Chain")
-}, 30000);
+  updateLocal();
+}, 30000)
 
 /* Start Server */
 httpServer.listen(process.env.PORT || 8080, () =>
