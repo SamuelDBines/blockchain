@@ -454,11 +454,11 @@ app.post('/api/dispatch', ensureSupplier, async (req, res) => {
   try {
     // delete req.body.timestampc
     req.body.type = types.DISPATCH
-    const transaction = new Transaction(types.DISPATCH, req.body, accessLevel.CUSTOMER, req.session.user.email || req.body.createBy).transaction;
+    const transaction = new Transaction(types.DISPATCH, req.body, accessLevel.CUSTOMER, req.body.createBy).transaction;
 
     blockchain.addBlock(blockchain.getChain(), transaction, accessLevel.CUSTOMER)
     return res.json({
-      response: "ITEM SENTr",
+      response: "ITEM SENT",
       success: true
     })
   } catch (e) {
@@ -477,14 +477,14 @@ app.post('/api/delivery', ensureDriver, async (req, res) => {
   try {
     // delete req.body.timestampc
     req.body.type = types.DELIVERED
-    const transaction = new Transaction(types.DELIVERED, req.body, accessLevel.CUSTOMER, req.session.user.email || req.body.createBy).transaction;
+    const transaction = new Transaction(types.DELIVERED, req.body, accessLevel.CUSTOMER, req.body.createBy).transaction;
     blockchain.addBlock(blockchain.getChain(), transaction, accessLevel.CUSTOMER)
     return res.json({
-      response: "item delivered"
+      response: "ITEM DELIVERED"
     })
   } catch (e) {
     return res.json({
-      response: "Error with system try again"
+      response: "FAILED TO DELIVER"
     })
   }
 })
@@ -501,7 +501,7 @@ app.post('/api/attached', ensureSupplier, async (req, res) => {
     const transaction = new Transaction(types.ATTACHED, req.body, accessLevel.CUSTOMER, req.session.user.email || req.body.createBy).transaction;
     blockchain.addBlock(blockchain.getChain(), transaction, accessLevel.CUSTOMER)
     return res.json({
-      response: "Sensor attached",
+      response: "SENSOR ATTACHED",
       success: true
     })
   } catch (e) {
