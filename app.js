@@ -567,8 +567,8 @@ const ensureComplete = function (type, data, access, user) {
   const recentFilter = Object.keys(recentPull).map(k => recentPull[k])
   const quickTest = recentFilter
     .filter(item => item.createBy == user && item.code == data.code && item.timestamp == data.timestamp, )
-    .some(item => type.includes(item.type))
-  if (quickTest) {
+  console.log(quickTest)
+  if (quickTest.some(item => type.includes(item.type))) {
     return true
   }
   console.log("here");
