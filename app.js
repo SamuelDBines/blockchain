@@ -62,8 +62,6 @@ const ensureAdmin = function (req, res, next) {
   return next(err)
 }
 const ensureSupplier = function (req, res, next) {
-  console.log(req.body)
-  console.log(req.body.access == accessLevel.SENSOR)
   if ((req.session.user && req.session.user.access == accessLevel.SUPPLIER) || req.body.access == accessLevel.SENSOR) {
     delete req.body.access;
     return next();
@@ -73,8 +71,6 @@ const ensureSupplier = function (req, res, next) {
   return next(err)
 }
 const ensureDriver = function (req, res, next) {
-  console.log(req.body.access)
-  console.log(req.body.access == accessLevel.SENSOR)
   if ((req.session.user && req.session.user.access == accessLevel.DRIVER) || req.body.access == accessLevel.SENSOR) {
     delete req.body.access;
     return next();
@@ -449,55 +445,48 @@ app.post('/api/return', async (req, res) => {
 })
 app.post('/api/dispatch', ensureSupplier, async (req, res) => {
   console.log('here' + JSON.stringify(req.body))
-  if (req.session.user) {
-    if (ensureComplete([types.RETURN, types.DAMAGED, types.DISPATCH, types.DELIVERED], req.body, accessLevel.CUSTOMER, req.body.createBy)) {
-      return res.json({
-        response: " this item can no longer be sent",
-        success: false
-      })
-    }
-    try {
-      // delete req.body.timestampc
-      req.body.type = types.DISPATCH
-      const transaction = new Transaction(types.DISPATCH, req.body, accessLevel.CUSTOMER, req.session.user.email).transaction;
-
-      blockchain.addBlock(blockchain.getChain(), transaction, accessLevel.CUSTOMER)
-      return res.json({
-        response: "item sent to customer",
-        success: true
-      })
-    } catch (e) {
-      return res.json({
-        response: "item cannot be returned again",
-        success: false
-      })
-    }
+  if (ensureComplete([types.RETURN, types.DAMAGED, types.DISPATCH, types.DELIVERED], req.body, accessLevel.CUSTOMER, req.body.createBy)) {
+    return res.json({
+      response: " this item can no longer be sent",
+      success: false
+    })
   }
-  res.redirect('/error.html');
+  try {
+    // delete req.body.timestampc
+    req.body.type = types.DISPATCH
+    const transaction = new Transaction(types.DISPATCH, req.body, accessLevel.CUSTOMER, req.session.user.email).transaction;
+
+    blockchain.addBlock(blockchain.getChain(), transaction, accessLevel.CUSTOMER)
+    return res.json({
+      response: "item sent to customer",
+      success: true
+    })
+  } catch (e) {
+    return res.json({
+      response: "item cannot be returned again",
+      success: false
+    })
+  }
 })
 app.post('/api/delivery', ensureDriver, async (req, res) => {
   console.log('here' + JSON.stringify(req.body))
-  if (req.session.user) {
-
-    if (ensureComplete([types.RETURN, types.DAMAGED, types.ORDER, types.DELIVERED], req.body, accessLevel.CUSTOMER, req.body.createBy))
-      return res.json({
-        response: "this item can no longer be sent"
-      })
-    try {
-      // delete req.body.timestampc
-      req.body.type = types.DELIVERED
-      const transaction = new Transaction(types.DELIVERED, req.body, accessLevel.CUSTOMER, req.session.user.email).transaction;
-      blockchain.addBlock(blockchain.getChain(), transaction, accessLevel.CUSTOMER)
-      return res.json({
-        response: "item delivered"
-      })
-    } catch (e) {
-      return res.json({
-        response: "Error with system try again"
-      })
-    }
+  if (ensureComplete([types.RETURN, types.DAMAGED, types.ORDER, types.DELIVERED], req.body, accessLevel.CUSTOMER, req.body.createBy))
+    return res.json({
+      response: "this item can no longer be sent"
+    })
+  try {
+    // delete req.body.timestampc
+    req.body.type = types.DELIVERED
+    const transaction = new Transaction(types.DELIVERED, req.body, accessLevel.CUSTOMER, req.session.user.email).transaction;
+    blockchain.addBlock(blockchain.getChain(), transaction, accessLevel.CUSTOMER)
+    return res.json({
+      response: "item delivered"
+    })
+  } catch (e) {
+    return res.json({
+      response: "Error with system try again"
+    })
   }
-  res.redirect('/error.html');
 })
 app.post('/api/attached', ensureSupplier, async (req, res) => {
   console.log('here' + JSON.stringify(req.body))
