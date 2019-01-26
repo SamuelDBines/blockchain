@@ -503,7 +503,7 @@ app.post('/api/attached', ensureSupplier, async (req, res) => {
   try {
     // delete req.body.timestampc
     req.body.type = types.ATTACHED
-    const transaction = new Transaction(types.ATTACHED, req.body, accessLevel.CUSTOMER, req.session.user.email || req.body.createBy).transaction;
+    const transaction = new Transaction(types.ATTACHED, req.body, accessLevel.CUSTOMER, req.body.createBy).transaction;
     blockchain.addBlock(blockchain.getChain(), transaction, accessLevel.CUSTOMER)
     return res.json({
       response: "SENSOR ATTACHED",
