@@ -237,6 +237,11 @@ app.get('/api/dispatch', (req, res) => {
   })
   return res.json(map.filter(x => Object.keys(dups).includes(x.timestamp)))
 })
+app.post('/api/checkItem', ensureSupplier, (req, res) => {
+  let map = Object.values(CUSTOMER_CHAIN);
+
+  return res.json(map.filter(x => x.timestamp == req.body.timestamp))
+})
 app.get('/api/attach', (req, res) => {
   let map = Object.values(CUSTOMER_CHAIN);
   let dups = {};
