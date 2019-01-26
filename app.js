@@ -499,7 +499,7 @@ app.post('/api/dispatch', ensureSupplier, async (req, res) => {
   }
 })
 app.post('/api/delivery', ensureDriver, async (req, res) => {
-  console.log('here' + JSON.stringify(req.body))
+  console.log(req.body)
   if (
     ensureComplete(
       [types.RETURN, types.DAMAGED, types.ORDER, types.DELIVERED],
@@ -509,7 +509,7 @@ app.post('/api/delivery', ensureDriver, async (req, res) => {
     )
   )
     return res.json({
-      response: 'this item can no longer be sent',
+      response: 'FAILED DELIVERY',
     })
   try {
     // delete req.body.timestampc
