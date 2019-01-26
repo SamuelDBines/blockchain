@@ -62,6 +62,7 @@ const ensureAdmin = function (req, res, next) {
   return next(err)
 }
 const ensureSupplier = function (req, res, next) {
+  console.log(req.body)
   if (req.session.user && (req.session.user.access == accessLevel.SUPPLIER || req.body.access == accessLevel.SENSOR)) {
     delete req.body.access;
     return next();
@@ -71,6 +72,7 @@ const ensureSupplier = function (req, res, next) {
   return next(err)
 }
 const ensureDriver = function (req, res, next) {
+  console.log(req.body)
   if (req.session.user && (req.session.user.access == accessLevel.DRIVER || req.body.access == accessLevel.SENSOR)) {
     delete req.body.access;
     return next();
