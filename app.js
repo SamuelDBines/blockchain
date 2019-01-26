@@ -54,6 +54,7 @@ app.use(session({
 /* Rulls prevent access */
 const ensureAdmin = function (req, res, next) {
   if (req.session.user && req.session.user.access == accessLevel.ADMIN) {
+    delete req.body.access;
     return next();
   }
   var err = new Error('Not Found');
@@ -61,7 +62,8 @@ const ensureAdmin = function (req, res, next) {
   return next(err)
 }
 const ensureSupplier = function (req, res, next) {
-  if (req.session.user && (req.session.user.access == accessLevel.SUPPLIER || req.session.user.access == accessLevel.SENSOR)) {
+  if (req.session.user && (req.session.user.access == accessLevel.SUPPLIER || req.body.access == accessLevel.SENSOR)) {
+    delete req.body.access;
     return next();
   }
   var err = new Error('Not Found');
@@ -69,7 +71,8 @@ const ensureSupplier = function (req, res, next) {
   return next(err)
 }
 const ensureDriver = function (req, res, next) {
-  if (req.session.user && (req.session.user.access == accessLevel.DRIVER || req.session.user.access == accessLevel.SENSOR)) {
+  if (req.session.user && (req.session.user.access == accessLevel.DRIVER || req.body.access == accessLevel.SENSOR)) {
+    delete req.body.access;
     return next();
   }
   var err = new Error('Not Found');
