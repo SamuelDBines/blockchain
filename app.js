@@ -500,17 +500,11 @@ app.post('/api/dispatch', ensureSupplier, async (req, res) => {
 })
 app.post('/api/delivery', ensureDriver, async (req, res) => {
   console.log(req.body)
-  if (
-    ensureComplete(
-      [types.RETURN, types.DAMAGED, types.ORDER, types.DELIVERED],
-      req.body,
-      accessLevel.CUSTOMER,
-      req.body.createBy,
-    )
-  )
+  if (ensureComplete([types.RETURN, types.DAMAGED, types.ATTACHED, types.DELIVERED], req.body, accessLevel.CUSTOMER, req.body.createBy)) {
     return res.json({
       response: 'FAILED DELIVERY',
     })
+  }
   try {
     // delete req.body.timestampc
     req.body.type = types.DELIVERED
