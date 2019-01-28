@@ -13,7 +13,6 @@ const file = new File()
 const ITEMLIST = 'items.json'
 const NAVLINKS = 'links.json'
 const stateValue = 0
-let CUSTOMER_CHAIN = undefined
 let CHAIN = undefined
 const ip = require('ip')
 var request = require('request')
@@ -94,7 +93,6 @@ const ensureDriver = function (req, res, next) {
 const ensureDataPull = function (req, res, next) {
   const result = CHAIN //blockchain.viewChainContents(accessLevel.CUSTOMER);
   if (req.session.user) {
-    console.log(test)
     let filter = Object.keys(result).map(function (k) {
       return result[k]
     })
