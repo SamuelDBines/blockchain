@@ -27,9 +27,10 @@ const viewChain = new Vue({
       if (search) {
         this.itemList = this.viewChain.filter(item => {
           return item.code == search || item.name == search
-        }).sort(function (a, b) {
-          return new Date(b.timestamp) - new Date(a.timestamp);
-        });
+        })
+        // .sort(function (a, b) {
+        //   return new Date(b.timestamp) - new Date(a.timestamp);
+        // });
         return;
       }
       this.itemList = this.viewChain.sort(function (a, b) {
