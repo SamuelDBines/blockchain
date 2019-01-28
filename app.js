@@ -540,7 +540,7 @@ app.post('/api/attached', ensureSupplier, async (req, res) => {
   console.log('here' + JSON.stringify(req.body))
   if (
     ensureComplete(
-      [types.RETURN, types.DELIVERED],
+      [types.RETURN, types.ATTACHED, types.DISPATCH, types.DAMAGED, types.DELIVERED],
       req.body,
       accessLevel.CUSTOMER,
       req.body.createBy,
