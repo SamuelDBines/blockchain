@@ -557,7 +557,7 @@ app.post('/api/attached', ensureSupplier, async (req, res) => {
     blockchain.addBlock(
       blockchain.getChain(),
       transaction,
-      accessLevel.CUSTOMER,
+      accessLevel.ADMIN,
     )
     updateCall()
     return res.json({
