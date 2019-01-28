@@ -14,7 +14,7 @@ const ITEMLIST = 'items.json'
 const NAVLINKS = 'links.json'
 const stateValue = 0
 let CUSTOMER_CHAIN = undefined
-let ADMIN_CHAIN = undefined
+let CHAIN = undefined
 const ip = require('ip')
 var request = require('request')
 app.use(express.static('public'))
@@ -92,26 +92,18 @@ const ensureDriver = function (req, res, next) {
 /* Pulls order history for customer (May not be recent) */
 
 const ensureDataPull = function (req, res, next) {
-  const result = CUSTOMER_CHAIN //blockchain.viewChainContents(accessLevel.CUSTOMER);
+  const result = CHAIN //blockchain.viewChainContents(accessLevel.CUSTOMER);
   if (req.session.user) {
+    console.log(test)
     let filter = Object.keys(result).map(function (k) {
       return result[k]
     })
-    if (req.session.user.access == accessLevel.ADMIN || req.session.user.access == accessLevel.SUPPLIER) {
-      const admin = ADMIN_CHAIN
-      filter = filter.concat(
-        Object.keys(admin).map(function (k) {
-          return admin[k]
-        }).sort(function (a, b) {
-          return new Date(b.timestamp) - new Date(a.timestamp);
-        })
-      )
-    }
     if (req.session.user.access == accessLevel.CUSTOMER) {
       filter = filter.filter(transaction => {
-        return transaction.createBy == req.session.user.email || false
+        return transaction.createBy == req.session.user.email && transaction.access === accessLevel.CUSTOMER
       })
     }
+    console.log(filter)
     req.body = filter
     return next()
   }
@@ -122,25 +114,12 @@ const ensureDataPull = function (req, res, next) {
 }
 
 const ensureRecentPull = function (req, res, next) {
-  const result = blockchain.getWorldState(accessLevel.CUSTOMER) //blockchain.viewChainContents(accessLevel.CUSTOMER);
+  const result = blockchain.getWorldState(accessLevel.ADMIN) //blockchain.viewChainContents(accessLevel.CUSTOMER);
   if (req.session.user) {
-    let filter = Object.keys(result).map(function (k) {
+    const filter = Object.keys(result).map(function (k) {
       return result[k]
     })
-    if (req.session.user.access == accessLevel.ADMIN || req.session.user.access == accessLevel.SUPPLIER) {
-      const admin = blockchain.getWorldState(accessLevel.ADMIN)
-      filter = filter.concat(
-        Object.keys(admin).map(function (k) {
-          return admin[k]
-        }),
-      )
-    }
-    if (req.session.user.access == accessLevel.CUSTOMER) {
-      filter = filter.filter(transaction => {
-        return transaction.createBy == req.session.user.email || false
-      })
-    }
-    req.body = filter
+    req.body = filter;
     return next()
   }
 
@@ -148,18 +127,9 @@ const ensureRecentPull = function (req, res, next) {
   err.status = 404
   return next(err)
 }
-// let count = 0;
-// blockchain.addBlock(blockchain.getChain(), new Transaction('33', 'hi world', '3'), '2')
-// blockchain.addBlock(blockchain.getChain(), new Transaction('33', 'hi world', '4'), '2')
-// let currentBlock = blockchain.getChain();
-// let previous = JSON.parse(encpt.decrypt(ENCRYPTKEY, currentBlock.previous, currentBlock.hash));
 
-const test = {
-  previous: '4169d5182679e9626a1ff424704df44e5f6f87931a203ee8929c6733bb33d8a99f7ba21db96ad801e9027a2334ea4c7bc1a3cfd7c5f7ad686aaaa1f62005b5f157bc9d4ae8f742393e17eb3bf040a588a1bace8545f21ef79be78dee5154ed52279801ecd97147429e4827668ab63e88fb4b34225d1087efb8e85f92144fe6e6da1f7eff1fef7d02f76dbba602296cda270b6de5f233d4dc11f2042a7b692aec',
-  hash: '8992f05766f19090937593c214942a0d935ee867c4ad0075732e5d7b808e93d5410534882b0d2a8935917d4b77ac2b2cc7f86775129b312266f28d9843e074321c32b98226840bcde9dc18791076448b0d795c01dc16ded8344ef6f8060bb1b21b865155af7538f89901a559f5db94a5199975631e30f6bbd12f4615e835e5668d43729ebd1dea901ebab966040cda5bfa5ef6ba4c04f7c5a5aff2867ea6cf7f60bb820a5d3c1c3f02f78275831e4e0dfb43359bd3e5accf277e889099bdeb7040dc54f23129c009e794067a3658ab2e2987392d0bdafd00c1ee6ab8e68e67486d84e4f50a172d3396b961e668acfd6735768dd6a14045edbc882ebd19624826e077e306d02534f2af5a0644bdbf700f283583a9a6dbc17a30219ad8e962cd55b887669fdab9af0f1973a9bedae39dfe004ed127a03c6266724f141722b079c37c22871f6be0b8498f8d9eca021be186919b4b5ce558c143841a8813fb7bba01def131d005a5e3b705be23980385618e',
-}
+
 console.log(blockchain.getChainLength())
-console.log(blockchain.compareChain(test, 1))
 
 app.get('/api/links', async (req, res) => {
   const itemList = JSON.parse(file.read(NAVLINKS))
@@ -175,7 +145,7 @@ app.get('/api/links', async (req, res) => {
   res.json(itemList.loggedOut)
 })
 app.get('/api/dispatch', (req, res) => {
-  let map = Object.values(CUSTOMER_CHAIN)
+  let map = Object.values(CHAIN)
   let dups = {}
   map.forEach(element => {
     dups[element.timestamp] ?
@@ -195,12 +165,11 @@ app.get('/api/dispatch', (req, res) => {
   return res.json(map.filter(x => Object.keys(dups).includes(x.timestamp)))
 })
 app.post('/api/checkItem', ensureSupplier, (req, res) => {
-  const customer = Object.values(CUSTOMER_CHAIN)
-  const admin = Object.values(ADMIN_CHAIN)
-  return res.json(customer.filter(x => x.timestamp == req.body.timestamp).concat(admin.filter(x => x.timestamp == req.body.timestamp)))
+  const customer = Object.values(CHAIN)
+  return res.json(customer.filter(x => x.timestamp == req.body.timestamp))
 })
 app.get('/api/attach', (req, res) => {
-  let map = Object.values(CUSTOMER_CHAIN)
+  let map = Object.values(CHAIN)
   let dups = {}
   map.forEach(element => {
     dups[element.timestamp] ?
@@ -390,7 +359,7 @@ app.post('/api/items', async (req, res) => {
 })
 app.post('/api/order', async (req, res) => {
   const itemList = JSON.parse(file.read(ITEMLIST))
-  console.log(req.body)
+  console.log("here", req.body)
   if (req.session.user && itemList.some(item => item.code == req.body.code)) {
     try {
       req.body.timestamp = new Date()
@@ -407,6 +376,7 @@ app.post('/api/order', async (req, res) => {
         accessLevel.CUSTOMER,
       )
       updateCall()
+      console.log("success")
       return res.redirect('/success.html')
     } catch (e) {
       return res.redirect('/error.html')
@@ -581,19 +551,15 @@ const ensureComplete = function (type, data, access, user) {
   if (quickTest.some(item => type.includes(item.type))) {
     return true
   }
-  console.log("here");
-
-  const result = access == accessLevel.ADMIN ? ADMIN_CHAIN : CUSTOMER_CHAIN
-  const filter = Object.keys(result).map(k => result[k])
+  const filter = Object.keys(CHAIN).map(k => CHAIN[k])
+  const chain = access === accessLevel.CUSTOMER ? filter.filter(item.access === accessLevel.CUSTOMER) : filter;
   // const transaction = new Transaction(type, data, access, user).transaction;
-  return filter
+  return chain
     .filter(item => item.createBy == user && item.code == data.code && item.timestamp == data.timestamp, )
     .some(item => type.includes(item.type))
 }
 const updateLocal = function () {
-  CUSTOMER_CHAIN = blockchain.viewChainContents(accessLevel.CUSTOMER)
-  console.log('Updated customer Chain')
-  ADMIN_CHAIN = blockchain.viewChainContents(accessLevel.ADMIN)
+  CHAIN = blockchain.viewChainContents(accessLevel.ADMIN)
   console.log('Updated admin Chain')
 }
 const updateCall = function () {
@@ -611,8 +577,7 @@ app.get('/api/block', ensureDataPull, async (req, res) => {
 app.get('/api/recentActivity', ensureRecentPull, async (req, res) => {
   return res.json(req.body)
 })
-CUSTOMER_CHAIN = blockchain.viewChainContents(accessLevel.CUSTOMER)
-ADMIN_CHAIN = blockchain.viewChainContents(accessLevel.ADMIN)
+CHAIN = blockchain.viewChainContents(accessLevel.ADMIN)
 const httpServer = http.createServer(app);
 httpServer.listen(process.env.PORT || 8080, () =>
   console.log('HTTP is running running'),

@@ -49,9 +49,13 @@ class Chain {
       const unblock = encpt.decrypt(ENCRYPTKEY, previous.previous, currentBlock.previous);
       try {
         content[count] = JSON.parse(encpt.decrypt(ENCRYPTKEY, access, previous.hash))
-
+        console.log(access, "SUCCESS")
       } catch (e) {
-        console.log('No item')
+        if (access === "ADMIN")
+          content[count] = JSON.parse(encpt.decrypt(ENCRYPTKEY, "CUSTOMER", previous.hash))
+        else
+          console.log('No item')
+        console.log(access, "FAILED")
       }
       currentBlock = previous;
       previous = JSON.parse(unblock);

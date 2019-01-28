@@ -20,9 +20,6 @@ const viewChain = new Vue({
     this.viewChain = await apiService.get('/api/block');
     this.itemList = this.viewChain
     console.log(this.viewChain)
-    // .sort(function (a, b) {
-    //   return new Date(b.timestamp) - new Date(a.timestamp);
-    // });
     console.log(this.itemList);
   },
   methods: {
