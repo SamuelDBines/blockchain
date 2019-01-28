@@ -461,7 +461,6 @@ app.post('/api/dispatch', ensureSupplier, async (req, res) => {
       accessLevel.CUSTOMER, req.body.createBy, )) {
     return res.json({
       response: ' this item can no longer be sent',
-      success: true,
     })
   }
   try {
@@ -541,14 +540,10 @@ app.post('/api/attached', ensureSupplier, async (req, res) => {
   if (
     ensureComplete(
       [types.RETURN, types.ATTACHED, types.DISPATCH, types.DAMAGED, types.DELIVERED],
-      req.body,
-      accessLevel.CUSTOMER,
-      req.body.createBy,
-    )
+      req.body, accessLevel.CUSTOMER, req.body.createBy, )
   )
     return res.json({
       response: 'this item can no longer be sent',
-      success: true,
     })
   try {
     // delete req.body.timestampc
