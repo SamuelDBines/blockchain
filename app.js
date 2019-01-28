@@ -102,7 +102,9 @@ const ensureDataPull = function (req, res, next) {
       filter = filter.concat(
         Object.keys(admin).map(function (k) {
           return admin[k]
-        }),
+        }).sort(function (a, b) {
+          return new Date(b.timestamp) - new Date(a.timestamp);
+        })
       )
     }
     if (req.session.user.access == accessLevel.CUSTOMER) {
