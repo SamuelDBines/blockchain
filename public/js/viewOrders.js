@@ -18,9 +18,9 @@ const viewChain = new Vue({
   },
   mounted: async function () {
 
-    this.viewChain = await apiService.get('/api/block');
-    let removeDups = this.checkDuplicates(this.viewChain);
-    this.viewChain = this.viewChain.filter(x => !removeDups.includes(x.timestamp));
+    this.viewChain = await apiService.get('/api/attach');
+    // let removeDups = this.checkDuplicates(this.viewChain);
+    // this.viewChain = this.viewChain.filter(x => !removeDups.includes(x.timestamp));
     this.itemList = this.viewChain
     console.log(this.viewChain)
 
@@ -40,22 +40,6 @@ const viewChain = new Vue({
       this.itemList = this.viewChain.sort(function (a, b) {
         return new Date(b.timestamp) - new Date(a.timestamp);
       });;
-
-    },
-    checkDuplicates: function (array) {
-      let compare = [];
-      let dups = [];
-      // console.log(compare)
-      array.map(x => x.timestamp).forEach(element => {
-        if (compare.includes(element)) {
-          const remove = compare.indexOf(element);
-          dups.push(element)
-        } else {
-          compare.push(element)
-          console.log(compare);
-        }
-      });
-      return dups
 
     },
     dispatch: async function (code) {
