@@ -193,9 +193,9 @@ app.get('/api/dispatch', (req, res) => {
   return res.json(map.filter(x => Object.keys(dups).includes(x.timestamp)))
 })
 app.post('/api/checkItem', ensureSupplier, (req, res) => {
-  let map = Object.values(CUSTOMER_CHAIN)
-
-  return res.json(map.filter(x => x.timestamp == req.body.timestamp))
+  const customer = Object.values(CUSTOMER_CHAIN)
+  const admin = Object.values(ADMIN_CHAIN)
+  return res.json(customer.filter(x => x.timestamp == req.body.timestamp).concat(admin.filter(x => x.timestamp == req.body.timestamp)))
 })
 app.get('/api/attach', (req, res) => {
   let map = Object.values(CUSTOMER_CHAIN)
@@ -514,7 +514,6 @@ app.post('/api/delivery', ensureDriver, async (req, res) => {
   }
 })
 app.post('/api/damage', ensureDriver, async (req, res) => {
-  console.log("HERE")
   if (req.body && req.body.type === types.DISPATCH && ensureComplete([types.RETURN, types.DAMAGED, types.DELIVERED], req.body, accessLevel.CUSTOMER, req.body.createBy)) {
     return res.json({
       response: 'FAILED TO UPDATE DAMAGED ITEM',
@@ -536,7 +535,6 @@ app.post('/api/damage', ensureDriver, async (req, res) => {
   }
 })
 app.post('/api/attached', ensureSupplier, async (req, res) => {
-  console.log('here' + JSON.stringify(req.body))
   if (
     ensureComplete(
       [types.RETURN, types.ATTACHED, types.DISPATCH, types.DAMAGED, types.DELIVERED],
