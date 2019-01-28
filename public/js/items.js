@@ -29,7 +29,7 @@ const items = new Vue({
     },
     orderItem: async function (data) {
       const response = await apiService.post('/api/order', data);
-      console.log(response);
+      alert(response);
     }
   }
 

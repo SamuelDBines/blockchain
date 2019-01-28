@@ -377,9 +377,13 @@ app.post('/api/order', async (req, res) => {
       )
       updateCall()
       console.log("success")
-      return res.redirect('/success.html')
+      return res.json({
+        response: 'item ordered',
+      })
     } catch (e) {
-      return res.redirect('/error.html')
+      return res.json({
+        response: 'order failed',
+      })
     }
   }
 
