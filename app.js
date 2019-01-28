@@ -97,7 +97,7 @@ const ensureDataPull = function (req, res, next) {
     let filter = Object.keys(result).map(function (k) {
       return result[k]
     })
-    if (req.session.user.access == accessLevel.ADMIN) {
+    if (req.session.user.access == accessLevel.ADMIN || req.session.user.access == accessLevel.SUPPLIER) {
       const admin = ADMIN_CHAIN
       filter = filter.concat(
         Object.keys(admin).map(function (k) {
@@ -125,7 +125,7 @@ const ensureRecentPull = function (req, res, next) {
     let filter = Object.keys(result).map(function (k) {
       return result[k]
     })
-    if (req.session.user.access == accessLevel.ADMIN) {
+    if (req.session.user.access == accessLevel.ADMIN || req.session.user.access == accessLevel.SUPPLIER) {
       const admin = blockchain.getWorldState(accessLevel.ADMIN)
       filter = filter.concat(
         Object.keys(admin).map(function (k) {
