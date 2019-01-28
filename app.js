@@ -540,7 +540,7 @@ app.post('/api/attached', ensureSupplier, async (req, res) => {
   if (
     ensureComplete(
       [types.RETURN, types.ATTACHED, types.DISPATCH, types.DAMAGED, types.DELIVERED],
-      req.body, accessLevel.CUSTOMER, req.body.createBy, )
+      req.body, accessLevel.ADMIN, req.body.createBy, )
   )
     return res.json({
       response: 'this item can no longer be sent',
@@ -551,7 +551,7 @@ app.post('/api/attached', ensureSupplier, async (req, res) => {
     const transaction = new Transaction(
       types.ATTACHED,
       req.body,
-      accessLevel.CUSTOMER,
+      accessLevel.ADMIN,
       req.body.createBy,
     ).transaction
     blockchain.addBlock(
