@@ -550,7 +550,7 @@ const ensureComplete = function (type, data, access, user) {
     return true
   }
   const filter = Object.keys(CHAIN).map(k => CHAIN[k])
-  const chain = access === accessLevel.CUSTOMER ? filter.filter(item.access === accessLevel.CUSTOMER) : filter;
+  const chain = access === accessLevel.CUSTOMER ? filter.filter(item => item.access === accessLevel.CUSTOMER) : filter;
   // const transaction = new Transaction(type, data, access, user).transaction;
   return chain
     .filter(item => item.createBy == user && item.code == data.code && item.timestamp == data.timestamp, )
