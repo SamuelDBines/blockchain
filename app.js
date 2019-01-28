@@ -179,7 +179,10 @@ app.get('/api/attach', (req, res) => {
       dups[element].includes('RETURN') ||
       dups[element].includes('DELIVERED') ||
       dups[element].includes('ATTACHED') ||
-      dups[element].includes('DISPATCH')
+      dups[element].includes('DISPATCH') ||
+      dups[element].includes('DELETE') ||
+      dups[element].includes('INSERT') ||
+      dups[element].includes('UPDATE')
     ) {
       delete dups[element]
     }
