@@ -514,7 +514,7 @@ app.post('/api/delivery', ensureDriver, async (req, res) => {
   }
 })
 app.post('/api/damage', ensureDriver, async (req, res) => {
-  if (req.body && req.body.type === types.DISPATCH && ensureComplete([types.RETURN, types.DAMAGED, types.DELIVERED], req.body, accessLevel.CUSTOMER, req.body.createBy)) {
+  if (req.body && req.body.type === types.DISPATCH && ensureComplete([types.RETURN, types.DAMAGED, types.DELIVERED], req.body, accessLevel.ADMIN, req.body.createBy)) {
     return res.json({
       response: 'FAILED TO UPDATE DAMAGED ITEM',
     })
@@ -522,7 +522,7 @@ app.post('/api/damage', ensureDriver, async (req, res) => {
   try {
     req.body.type = types.DAMAGED
     const transaction = new Transaction(types.DAMAGED, req.body, accessLevel.ADMIN, req.body.createBy, ).transaction
-    blockchain.addBlock(blockchain.getChain(), transaction, accessLevel.CUSTOMER)
+    blockchain.addBlock(blockchain.getChain(), transaction, accessLevel.ADMIN)
     updateCall()
     return res.json({
       response: 'ITEM DAMAGE MAY HAVE OCCURED',
