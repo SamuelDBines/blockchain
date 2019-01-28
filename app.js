@@ -101,7 +101,6 @@ const ensureDataPull = function (req, res, next) {
         return transaction.createBy == req.session.user.email && transaction.access === accessLevel.CUSTOMER
       })
     }
-    console.log(filter)
     req.body = filter
     return next()
   }
