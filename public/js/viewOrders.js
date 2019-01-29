@@ -1,7 +1,7 @@
 Vue.component('table-item', {
   props: ['data', 'item'],
   template: `<tr>
-    <td class="tableItem">{{ data.timestamp.split(".")[1] + data.code}}</td>
+    <td class="tableItem">{{ data.id }}</td>
     <td class="tableItem">{{ data.type }}</td>
     <td class="tableItem"> {{ data.code }} </td>
     <td class="tableItem"> {{ data.name || 'unknown' }} </td>

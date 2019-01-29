@@ -43,6 +43,10 @@ select {
   margin-left: 1rem;
 }
 
+.ta {
+  display: none;
+}
+
 .searchButton {
   width: calc(20% - 1rem);
 }

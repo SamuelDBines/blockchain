@@ -3,7 +3,15 @@
     <link rel="stylesheet" type="text/css" href="css/styles.css">
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
     <script src="js/apiService.js" > </script> 
-    
+    <script language="JavaScript" type="text/javascript">
+<!--
+var TO,URL;
+function Link(url){
+ URL=url;
+ TO=setTimeout('window.location=URL;',500);
+}
+//-->
+</script>
   </head>
   <body>
     <div class="navbar" id="navbar">
@@ -25,11 +33,8 @@
     </div>
       <table class="table">
         <thead class="tableHead">
-         <th>
-           Order Code
-          </th>
           <th>
-            ORDER
+           Order Code
           </th>
           <th>
             Item Code
@@ -41,12 +46,14 @@
             Orderer 
           </th>
         </thead>
-        <tbody>
-          <tr class="tableRow" is="table-item" 
+          <tbody class="tableRow" is="table-item" 
             v-for="item in itemList"
             v-bind:data="item"
-          > </tr>
-        </tbody>
+            v-bind:expand="expandItem"
+            v-bind:id ="id"
+            v-bind:reduce="reduced"
+          > </tbody>
+       
       </table>
     </div>
   

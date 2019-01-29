@@ -29,9 +29,6 @@
            Order Code
           </th>
           <th>
-            ORDER
-          </th>
-          <th>
             Item Code
           </th>
           <th>
@@ -44,12 +41,14 @@
             Options 
           </th>
         </thead>
-        <tbody>
-          <tr class="tableRow" is="table-item" 
+        <tbody class="tableRow" is="table-item" 
             v-for="item in itemList"
             v-bind:data="item"
             v-bind:item="returnItem"
-          > </tr>
+            v-bind:expand="expandItem"
+            v-bind:id ="id"
+            v-bind:reduce="reduced"
+          > </tbody>
         </tbody>
       </table>
     </div>

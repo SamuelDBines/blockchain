@@ -1,7 +1,7 @@
 const express = require('express')
 const http = require('http')
 const app = express()
-const bcrypt = require('bcrypt')
+// const bcrypt = require('bcrypt')
 const bodyParser = require('body-parser')
 const session = require('express-session')
 const Transaction = require('./transactions.js')
@@ -359,10 +359,12 @@ app.post('/api/items', async (req, res) => {
 })
 app.post('/api/order', async (req, res) => {
   const itemList = JSON.parse(file.read(ITEMLIST))
-  console.log("here", req.body)
   if (req.session.user && itemList.some(item => item.code == req.body.code)) {
     try {
-      req.body.timestamp = new Date()
+      const stamp = new Date();
+      req.body.timestamp = stamp.toTimeString().split(" ")[0];
+      const ident = stamp.getTime().toString()
+      req.body.id = ident.substr(ident.length - 6) + req.body.code
       req.body.type = types.ORDER
       const transaction = new Transaction(
         types.ORDER,
@@ -407,6 +409,7 @@ app.post('/api/return', async (req, res) => {
     try {
       // delete req.body.timestampc
       req.body.type = types.RETURN
+      req.body.timestamp = new Date().toTimeString().split(" ")[0];
       const transaction = new Transaction(
         types.RETURN,
         req.body,
@@ -441,6 +444,7 @@ app.post('/api/dispatch', ensureSupplier, async (req, res) => {
   }
   try {
     // delete req.body.timestampc
+    req.body.timestamp = new Date().toTimeString().split(" ")[0];
     req.body.type = types.DISPATCH
     const transaction = new Transaction(types.DISPATCH, req.body, accessLevel.CUSTOMER, req.body.createBy, ).transaction
 
@@ -466,6 +470,7 @@ app.post('/api/delivery', ensureDriver, async (req, res) => {
   }
   try {
     // delete req.body.timestampc
+    req.body.timestamp = new Date().toTimeString().split(" ")[0];
     req.body.type = types.DELIVERED
     const transaction = new Transaction(
       types.DELIVERED,
@@ -496,6 +501,7 @@ app.post('/api/damage', ensureDriver, async (req, res) => {
     })
   }
   try {
+    req.body.timestamp = new Date().toTimeString().split(" ")[0];
     req.body.type = types.DAMAGED
     const transaction = new Transaction(types.DAMAGED, req.body, accessLevel.ADMIN, req.body.createBy, ).transaction
     blockchain.addBlock(blockchain.getChain(), transaction, accessLevel.ADMIN)
@@ -521,6 +527,7 @@ app.post('/api/attached', ensureSupplier, async (req, res) => {
     })
   try {
     // delete req.body.timestampc
+    req.body.timestamp = new Date().toTimeString().split(" ")[0];
     req.body.type = types.ATTACHED
     const transaction = new Transaction(
       types.ATTACHED,
@@ -559,7 +566,7 @@ const ensureComplete = function (type, data, access, user) {
   const chain = access === accessLevel.CUSTOMER ? filter.filter(item => item.access === accessLevel.CUSTOMER) : filter;
   // const transaction = new Transaction(type, data, access, user).transaction;
   return chain
-    .filter(item => item.createBy == user && item.code == data.code && item.timestamp == data.timestamp, )
+    .filter(item => item.createBy == user && item.code == data.code && item.id == data.id, )
     .some(item => type.includes(item.type))
 }
 const updateLocal = function () {

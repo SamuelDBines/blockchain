@@ -1,22 +1,46 @@
 Vue.component('table-item', {
-  props: ['data'],
-  template: `<tr>
-      <td class="tableItem">{{ data.timestamp.split(".")[1] + data.code}}</td>
-    <td class="tableItem">{{ data.type }}</td>
-    <td class="tableItem"> {{data.code }} </td>
-    <td class="tableItem"> {{ data.name || 'unknown' }} </td>
-    <td class="tableItem"> {{ data.createBy }}</td>
-    </tr>`
+  props: ['data', 'expand', 'id', 'reduce'],
+  template: `<tbody>
+    <tr>
+      <td @click="expand(data.id)"  class="tableItem">{{ data.id }}</td>    
+      <td class="tableItem"> {{ data.code }} </td>
+      <td class="tableItem"> {{ data.name || 'unknown' }} </td>
+      <td class="tableItem"> {{ data.createBy }}</td>
+    </tr>
+    <tr v-for="red in reduce[data.id ].types">
+      <td :class="{ 'ta' : id != data.id }" colspan="2"> {{ red.time }} </td>
+      <td :class="{ 'ta' : id != data.id }" colspan="2"> {{ red.type }} </td>
+    </tr>
+    </tbody>
+    `
 })
 const viewChain = new Vue({
   el: '#viewChain',
   data: {
     search: undefined,
+    id: undefined,
     viewChain: [],
-    itemList: []
+    itemList: [],
+    reduced: {}
   },
   mounted: async function () {
-    this.viewChain = await apiService.get('/api/block');
+    const data = await apiService.get('/api/block');
+    data.forEach(x => {
+      if (this.reduced[x.id] == undefined) {
+        this.reduced[x.id] = x
+        this.reduced[x.id].types = [{
+          time: x.timestamp,
+          type: x.type
+        }];
+      } else
+        this.reduced[x.id].types.push({
+          time: x.timestamp,
+          type: x.type
+        })
+      return x
+    })
+    this.viewChain = Object.values(this.reduced)
+    console.log(this.reduced)
     this.itemList = this.viewChain.sort(function (a, b) {
       return new Date(b.timestamp) - new Date(a.timestamp);
     });
@@ -37,6 +61,9 @@ const viewChain = new Vue({
         return new Date(b.timestamp) - new Date(a.timestamp);
       });
     },
+    expandItem: function (id) {
+      (this.id == id) ? this.id = undefined: this.id = id
+    }
 
   }
 
