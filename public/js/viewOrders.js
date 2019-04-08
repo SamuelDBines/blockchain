@@ -44,7 +44,7 @@ const viewChain = new Vue({
     },
     dispatch: async function (code) {
       const response = await apiService.post('/api/dispatch', code);
-      alert(response.response)
+      alert(response.err)
       location.reload();
 
     },

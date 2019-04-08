@@ -15,15 +15,15 @@
     <form class="card" METHOD="POST" ACTION="/register">
       <div class="input_field">
         <label  class="input_label"> Full Name</label>
-        <input type="text" name="name" required>
+        <input type="text" name="user_name" required>
       <div>
       <div class="input_field">
         <label  class="input_label">  Email</label>
-        <input type="text" name="email" required>
+        <input type="text" name="user_email" required>
       <div>
       <div class="input_field">
         <label class="input_label"> Password</label>
-        <input type="password" minlength="8" maxlength="16" name="password" required>
+        <input type="password" minlength="8" maxlength="16" name="user_password" required>
       <div>
       <div class="input_field">
         <label class="input_label"> Confirm Password</label>
@@ -31,7 +31,7 @@
       <div>
       <div class="input_field">
         <label class="input_label"> Type</label>
-        <select name="access" required>
+        <select name="user_account" required>
           <option value="DRIVER">Driver </option>
           <option value="SUPPLIER">Supplier </option>
           <option value="ADMIN">Admin </option>

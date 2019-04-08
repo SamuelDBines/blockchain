@@ -2,12 +2,12 @@ Vue.component('table-item', {
   props: ['data', 'expand', 'id', 'reduce'],
   template: `<tbody>
     <tr>
-      <td @click="expand(data.id)"  class="tableItem">{{ data.id }}</td>    
-      <td class="tableItem"> {{ data.code }} </td>
-      <td class="tableItem"> {{ data.name || 'unknown' }} </td>
-      <td class="tableItem"> {{ data.createBy }}</td>
+      <td @click="expand(data.id)"  class="tableItem pointer">{{ data.id }}</td>    
+      <td @click="expand(data.id)" class="tableItem pointer"> {{ data.code }} </td>
+      <td @click="expand(data.id)" class="tableItem pointer"> {{ data.name || 'unknown' }} </td>
+      <td @click="expand(data.id)" class="tableItem pointer"> {{ data.createBy }}</td>
     </tr>
-    <tr v-for="red in reduce[data.id ].types">
+    <tr v-for="red in reduce[data.id ].types" class="expandRow">
       <td :class="{ 'ta' : id != data.id }" colspan="2"> {{ red.time }} </td>
       <td :class="{ 'ta' : id != data.id }" colspan="2"> {{ red.type }} </td>
     </tr>

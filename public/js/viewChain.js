@@ -2,15 +2,15 @@ Vue.component('table-item', {
   props: ['data', 'item', 'expand', 'id', 'reduce'],
   template: `<tbody>
     <tr>
-      <td @click="expand(data.id)"  class="tableItem">{{ data.id }}</td>    
-      <td class="tableItem"> {{ data.code }} </td>
-      <td class="tableItem"> {{ data.name || 'unknown' }} </td>
-      <td class="tableItem"> {{ data.createBy }}</td>
+      <td @click="expand(data.id)"  class="tableItem pointer">{{ data.id }}</td>    
+      <td @click="expand(data.id)" class="tableItem pointer"> {{ data.code }} </td>
+      <td @click="expand(data.id)" class="tableItem pointer"> {{ data.name || 'unknown' }} </td>
+      <td @click="expand(data.id)" class="tableItem pointer"> {{ data.createBy }}</td>
       <td class="tableItem"> <button @click="item(data)" > <i class="fas fa-sync-alt" style="font-size:24px;"> </i></button></td>
     </tr>
-    <tr v-for="red in reduce[data.id ].types">
+    <tr v-for="red in reduce[data.id ].types" class="expandRow">
       <td :class="{ 'ta' : id != data.id }" colspan="2"> {{ red.time }} </td>
-      <td :class="{ 'ta' : id != data.id }" colspan="2"> {{ red.type }} </td>
+      <td :class="{ 'ta' : id != data.id }" colspan="3"> {{ red.type }} </td>
     </tr>
     </tbody>`
 })
@@ -24,7 +24,8 @@ const viewChain = new Vue({
     reduced: {}
   },
   mounted: async function () {
-    const data = await apiService.get('/api/block');
+    let data = await apiService.get('/api/block');
+    console.log(data)
     data.forEach(x => {
       if (this.reduced[x.id] == undefined) {
         this.reduced[x.id] = x

@@ -19,9 +19,8 @@ const viewChain = new Vue({
   },
   mounted: async function () {
 
-    this.viewChain = await apiService.get('/api/block');
-    let removeDups = this.checkDuplicates(this.viewChain);
-    this.viewChain = this.viewChain.filter(x => removeDups.includes(x.timestamp) && x.type == "DISPATCH");
+    this.viewChain = await apiService.get('/api/dispatched');
+    
     this.itemList = this.viewChain
     console.log(this.viewChain)
 
@@ -43,23 +42,7 @@ const viewChain = new Vue({
       });;
 
     },
-    checkDuplicates: function (array) {
-      let compare = [];
-      let dups = {};
-      // console.log(compare)
-      let value = [...new Set(array.map(x => x.timestamp))]
-      console.log(value)
-      array.forEach(element => {
-        dups[element.timestamp] ? dups[element.timestamp].push(element.type) : dups[element.timestamp] = [element.type];
-      });
-      value.forEach(element => {
-        if (dups[element].includes("RETURN") || dups[element].includes("DELIVERED")) {
-          delete dups[element];
-        }
-      })
-      return Object.keys(dups);
-
-    },
+   
     deliverItem: async function (code) {
       const response = await apiService.post('/api/delivery', code);
       alert(response.response)
