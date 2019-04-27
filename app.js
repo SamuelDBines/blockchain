@@ -313,6 +313,7 @@ app.post('/api/attached',  setPriviligeAdmin, sendRequest,  async (req, res) => 
 })
 app.get('/api/block' , sessionCheck , async (req, res) => {
   result = await returnChain()
+  console.log(here)
   if(req.session.user.user_account == accessLevel.CUSTOMER)
       return res.json(result.filter(k => k.user_email == req.session.user.user_email && k.privilge == accessLevel.CUSTOMER));
   return res.json(result)
