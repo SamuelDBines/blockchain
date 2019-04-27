@@ -108,7 +108,7 @@ const sendRequest = async function(req, res, next) {
   if (send.success) 
     return next()
   return res.json({
-    response: 'Failed' || send.err,
+    response:  send.err || "Failed",
   })
 }
 const filterChain = async function (list) {
