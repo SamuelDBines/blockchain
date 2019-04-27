@@ -149,7 +149,7 @@ app.get('/api/dispatched', async  (req, res) => {
 
   return res.json(await filterChain(["RETURN", "DELIVERED"]))
 })
-app.post('/api/checkItem', sessionCheck, (req, res) => {
+app.post('/api/checkItem', (req, res) => {
   const customer = Object.values(CHAIN)
   return res.json(customer.filter(x => x.timestamp == req.body.timestamp))
 })
@@ -194,6 +194,7 @@ app.post('/login', async (req, res) => {
   const response = await rp(options)
     .then((res) => res)
     .catch((err) => err )
+  console.log(response)
   if (response.success) {
     req.session.user = response.success
     return res.redirect('/home')
@@ -284,7 +285,7 @@ app.post('/api/return', sessionCheck, setPriviligeCustomer, sendRequest, async (
     response: 'item returned',
   })
 })
-app.post('/api/dispatch', sessionCheck, setPriviligeCustomer, sendRequest, async (req, res) => {
+app.post('/api/dispatch',  setPriviligeCustomer, sendRequest, async (req, res) => {
   return res.json({
     response: 'ITEM SENT',
     success: true,
@@ -296,13 +297,13 @@ app.post('/api/delivery', sessionCheck, setPriviligeCustomer, sendRequest, async
     success: true,
   })
 })
-app.post('/api/damage', sessionCheck, setPriviligeAdmin, sendRequest,  async (req, res) => {
+app.post('/api/damage',  setPriviligeAdmin, sendRequest,  async (req, res) => {
   return res.json({
     response: 'ITEM DAMAGE MAY HAVE OCCURED',
     success: true,
   })
 })
-app.post('/api/attached', sessionCheck, setPriviligeAdmin, sendRequest,  async (req, res) => {
+app.post('/api/attached',  setPriviligeAdmin, sendRequest,  async (req, res) => {
   
   return res.json({
     response: 'SENSOR ATTACHED',
