@@ -291,7 +291,7 @@ app.post('/api/dispatch',  setPriviligeCustomer, sendRequest, async (req, res) =
     success: true,
   })
 })
-app.post('/api/delivery', sessionCheck, setPriviligeCustomer, sendRequest, async (req, res) => {
+app.post('/api/delivery',  setPriviligeCustomer, sendRequest, async (req, res) => {
   return res.json({
     response: 'ITEM DELIVERED',
     success: true,
